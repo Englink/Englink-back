@@ -1,3 +1,4 @@
+// commit from maor..
 const mongoose = require('mongoose')
 const bcrypt = require('bcryptjs')
 const teacherSchema = new mongoose.Schema({

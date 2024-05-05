@@ -1,4 +1,4 @@
-// commit from maor..
+const mongoose = require('mongoose');
 
 const bcrypt = require('bcryptjs')
 const teacherSchema = new mongoose.Schema({
@@ -21,7 +21,8 @@ const teacherSchema = new mongoose.Schema({
     }
     ,
     desc:{
-        type:String
+        type:String,
+        require:[true,'must be description']
     }
 
 })

@@ -3,6 +3,7 @@ const asyncHandler = require('express-async-handler')
 const AppError = require('./../utils/AppError')
 const {promisify} = require('util')
 const student = require('./../models/studentModel')
+const teacher = require('../models/teacherModel')
 
 const signToken = (id) => {
     return jwt.sign({id}, process.env.JWT_SECRET, {
@@ -10,20 +11,21 @@ const signToken = (id) => {
     });
   };
   
-const createSendToken = (student, statusCode, res) => {
-    const token = signToken(student._id);
-    // const cookieOptions = {
-    //   expires: new Date(
-    //     Date.now() + process.env.JWT_EXPIRES_IN * 24 * 60 * 60 * 1000
-    //   ),
-    //   httpOnly: true,
-    //   secure : true
-    // }
+const createSendToken = (user, statusCode, res) => {
+    const token = signToken(user._id);
+    const cookieOptions = {
+      expires: new Date(
+        Date.now() + process.env.JWT_EXPIRES_IN * 24 * 60 * 60 * 1000
+      ),
+      httpOnly: true,
+      secure : true
+    }
     
-    // res.cookie('jwt', token, cookieOptions);
+    res.cookie('jwt', token, cookieOptions);
     res.status(statusCode).json({
       status: 'success',
       token,
+      user
     });
   };
 exports.login = asyncHandler(async (req, res, next)=>{
@@ -40,7 +42,9 @@ return next(new AppError(403, 'Email or password is not correct 2'))
 
 
 exports.register = asyncHandler(async(req, res, next)=>{
-    const {email, password} = req.body
+
+  console.log('e')
+    const {email, password,isStudent} = req.body
     if (!email ||!password)
      return next(new AppError(403,'Request details are missing'))
     console.log(email)
@@ -49,10 +53,17 @@ exports.register = asyncHandler(async(req, res, next)=>{
 
     if (st)
     return next(new AppError(403,'user already in the database'))
-    // console.log(email)
-    // console.log(password)
+    if (isStudent)
+      {
     const newStudent = await student.create({email, password})
     createSendToken(newStudent, 201 , res)
+      }
+      else
+      {
+        const newTeacher  = await teacher.create({email,password})  
+        createSendToken(newTeacher, 201 , res)
+      }
+
 })
 
 

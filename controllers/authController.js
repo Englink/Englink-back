@@ -43,13 +43,11 @@ return next(new AppError(403, 'Email or password is not correct 2'))
 
 exports.register = asyncHandler(async(req, res, next)=>{
 
-  console.log('e')
-    const {email, password,isStudent} = req.body
+    const {email, password} = req.body.userDetails
+    const isStudent = req.body.isStudent
     if (!email ||!password)
      return next(new AppError(403,'Request details are missing'))
-    console.log(email)
     const st = await student.findOne({email})
-    console.log(st)
 
     if (st)
     return next(new AppError(403,'user already in the database'))
@@ -60,7 +58,8 @@ exports.register = asyncHandler(async(req, res, next)=>{
       }
       else
       {
-        const newTeacher  = await teacher.create({email,password})  
+        console.log('e')
+        const newTeacher = await teacher.create(req.body.userDetails);
         createSendToken(newTeacher, 201 , res)
       }
 

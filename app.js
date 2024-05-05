@@ -3,7 +3,9 @@ const mongoose = require('mongoose');
 const AppError = require('./utils/AppError')
 const globalErrorHandler = require('./utils/errorHandler')
 const dotenv = require('dotenv')
+const cors = require('cors')
 dotenv.config()
+
 
 const productRouter = require('./routes/productsRouts')
 const studentRouter = require('./routes/studentRoutes')

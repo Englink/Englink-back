@@ -29,14 +29,28 @@ const createSendToken = (user, statusCode, res) => {
     });
   };
 exports.login = asyncHandler(async (req, res, next)=>{
-    const {email, password} = req.body
+    const {email, password} = req.body.userDetails
     if(!email || !password) return next(new AppError(403, 'Email or password is missing1'))
-    const st = await student.findOne({email})
-if (! st || !await  st.checkPassword(password, st.password) )
-return next(new AppError(403, 'Email or password is not correct 2'))
-    return next(new AppError(403,'everythin ok'))
+      const isStudent = req.body.isStudent
+    if (isStudent)
+      {
+        const st = await student.findOne({email})
+        if (! st || !await  st.checkPassword(password, st.password) )
+        return next(new AppError(403, 'Email or password is not correct '))
+        createSendToken(st, 201 , res) 
+      }
+      else
+      {
+        const tc = await teacher.findOne({email})
+        if (! tc || !await  tc.checkPassword(password, tc.password) )
+        return next(new AppError(403, 'Email or password is not correct '))
+        createSendToken(tc, 201 , res) 
 
-/* createSendToken(user, 201 , res) */
+      }
+      
+    
+    // return next(new AppError(403,'everythin ok'))
+
  
 })
 
@@ -53,7 +67,7 @@ exports.register = asyncHandler(async(req, res, next)=>{
     return next(new AppError(403,'user already in the database'))
     if (isStudent)
       {
-    const newStudent = await student.create({email, password})
+    const newStudent = await student.create(req.body.userDetails)
     createSendToken(newStudent, 201 , res)
       }
       else

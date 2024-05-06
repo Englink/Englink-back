@@ -1,20 +1,37 @@
 const mongoose = require('mongoose')
 const bcrypt = require('bcryptjs')
+
 const studentSchema = new mongoose.Schema({
-   
-    email:{
-        type:String,
-        required:[true , 'Please provide email'],
-        unique: true
-    },
-    password:{
+    // name: {
+    //     type: String,
+    //     required: [true, 'Please provide a name'],
+    // },
+    // age: {
+    //     type: Number, // 'number' should be 'Number'
+    //     required: [true, 'Please provide an age'],
+    // },
+    // gender: {
+    //     type: String,
+    //     required: [true, 'Please provide a gender'],
+    // },
+    email: {
         type: String,
-        required:[true, 'Must be a password'],
-        minLength: 8,
+        required: [true, 'Please provide an email'],
+        unique: true,
+    },
+    password: {
+        type: String,
+        required: [true, 'Please provide a password'],
+        minlength: 8, // 'minLength' should be 'minlength'
         // select: false
     }
+});
 
-})
+
+
+
+    
+   
 // //document middleware - runs b4 actual document is saved in the db "THIS REFERS TO A CURRENT DOCUMENT"
 studentSchema.pre('save', async function(next){
     if(!this.isModified('password'))

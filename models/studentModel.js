@@ -2,18 +2,18 @@ const mongoose = require('mongoose')
 const bcrypt = require('bcryptjs')
 
 const studentSchema = new mongoose.Schema({
-    // name: {
-    //     type: String,
-    //     required: [true, 'Please provide a name'],
-    // },
-    // age: {
-    //     type: Number, // 'number' should be 'Number'
-    //     required: [true, 'Please provide an age'],
-    // },
-    // gender: {
-    //     type: String,
-    //     required: [true, 'Please provide a gender'],
-    // },
+    name: {
+        type: String,
+        required: [true, 'Please provide a name'],
+    },
+    age: {
+        type: Number, // 'number' should be 'Number'
+        required: [true, 'Please provide an age'],
+    },
+    gender: {
+        type: String,
+        required: [true, 'Please provide a gender'],
+    },
     email: {
         type: String,
         required: [true, 'Please provide an email'],

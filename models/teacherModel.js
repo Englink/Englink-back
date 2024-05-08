@@ -4,6 +4,16 @@ const bcrypt = require('bcryptjs')
 
 
 const teacherSchema = new mongoose.Schema({
+    name:{
+        type:String,
+
+    }
+    ,
+    phone:
+    {
+        type:String,
+    }
+    ,
     email: {
         type: String,
         required: [true, 'Please provide email'],

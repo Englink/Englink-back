@@ -35,7 +35,6 @@ exports.login = asyncHandler(async (req, res, next)=>{
     if (isStudent)
       {
         const st = await student.findOne({email})
-        console.log(st)
         if (! st || !await  st.checkPassword(password, st.password) )
           {
             return next(new AppError(403, 'Email or password is not correct '))

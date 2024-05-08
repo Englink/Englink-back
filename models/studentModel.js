@@ -44,7 +44,6 @@ studentSchema.pre('save', async function(next){
 studentSchema.methods.checkPassword = async function(password,hashedPassword){
     console.log(hashedPassword)
     const checkPasword = await bcrypt.compare(password, hashedPassword)
-    console.log(checkPasword)
     return checkPasword
 }
 const student = mongoose.model('students', studentSchema)

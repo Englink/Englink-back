@@ -35,18 +35,21 @@ exports.login = asyncHandler(async (req, res, next)=>{
     if (isStudent)
       {
         const st = await student.findOne({email})
+        console.log(st)
         if (! st || !await  st.checkPassword(password, st.password) )
-        return next(new AppError(403, 'Email or password is not correct '))
-        createSendToken(st, 201 , res) 
-      }
-      else
-      {
-        const tc = await teacher.findOne({email})
-        if (! tc || !await  tc.checkPassword(password, tc.password) )
-        return next(new AppError(403, 'Email or password is not correct '))
-        createSendToken(tc, 201 , res) 
-
-      }
+          {
+            return next(new AppError(403, 'Email or password is not correct '))
+          }
+          createSendToken(st, 201 , res) 
+        }
+        else
+        {
+          const tc = await teacher.findOne({email})
+          if (! tc || !await  tc.checkPassword(password, tc.password) )
+            return next(new AppError(403, 'Email or password is not correct '))
+          createSendToken(tc, 201 , res) 
+          
+        }
       
     
     // return next(new AppError(403,'everythin ok'))

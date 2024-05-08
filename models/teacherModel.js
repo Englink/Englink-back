@@ -26,11 +26,10 @@ const teacherSchema = new mongoose.Schema({
         type: String,
         // required: [true, 'must be description']
     },
-    country:
-    {
-        type:String,
-
-    },
+    country:{
+        type:String
+    }
+    ,
     availability: [
         {
             date: {

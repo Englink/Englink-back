@@ -7,7 +7,6 @@ const cors = require('cors')
 dotenv.config()
 
 
-const productRouter = require('./routes/productsRouts')
 const studentRouter = require('./routes/studentRoutes')
 const teacherRouter = require('./routes/teacherRouter')
 
@@ -16,7 +15,6 @@ const port = 3003;
 
 app.use(express.json())
 app.use(cors())
-app.use('/api/products', productRouter)
 app.use('/api/students',studentRouter)
 app.use('/api/teachers',teacherRouter)
 app.use((err, req, res, next) => {

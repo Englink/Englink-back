@@ -47,7 +47,7 @@ const connectDB = async (url)=>{
     console.log(`Connected to database: ${mongoose.connection.name}`);
 
   }
-  connectDB(process.env.MONGO_ATLAS)
+  connectDB(process.env.MONGO_COMPASS)
 .then(()=>{
 console.log("The data base has been connected");
 })

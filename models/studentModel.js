@@ -12,6 +12,7 @@ const studentSchema = new mongoose.Schema({
     },
     gender: {
         type: String,
+
         required: [true, 'Please provide a gender'],
     },
     email: {

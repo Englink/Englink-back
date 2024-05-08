@@ -57,22 +57,24 @@ exports.login = asyncHandler(async (req, res, next)=>{
 
 exports.register = asyncHandler(async(req, res, next)=>{
 
-    const {email, password} = req.body.userDetails
-    const isStudent = req.body.isStudent
-    if (!email ||!password)
+      const {email, password} = req.body.userDetails
+      const isStudent = req.body.isStudent
+      if (!email ||!password)
      return next(new AppError(403,'Request details are missing'))
-    const st = await student.findOne({email})
-
-    if (st)
-    return next(new AppError(403,'user already in the database'))
+    
     if (isStudent)
       {
-    const newStudent = await student.create(req.body.userDetails)
-    createSendToken(newStudent, 201 , res)
-      }
-      else
-      {
-        console.log('e')
+        const st = await student.findOne({email})
+        if (st)
+        return next(new AppError(403,'student already in the database'))
+        const newStudent = await student.create(req.body.userDetails)
+        createSendToken(newStudent, 201 , res)
+    }
+    else
+    {
+        const tc = await teacher.findOne({email})
+        if (tc)
+        return next(new AppError(403,'teacher already in the database'))
         const newTeacher = await teacher.create(req.body.userDetails);
         createSendToken(newTeacher, 201 , res)
       }

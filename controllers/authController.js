@@ -85,12 +85,16 @@ exports.register = asyncHandler(async(req, res, next)=>{
 
 
 exports.protect = asyncHandler(async(req,res, next)=>{
-    const token = req.headers.authorization.split(' ')[1];
-    if(!token) return next(new AppError(403, 'Please login '))
-    const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET)
-    if(!decoded) return next(new AppError(403, 'Please login '))
+    // const token = req.headers.authorization.split(' ')[1];
+    // if(!token) return next(new AppError(403, 'Please login '))
+    // const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET)
+    // if(!decoded) return next(new AppError(403, 'Please login '))
 
-    console.log(token)
+      const token = req.headers.cookie?.split('=')[1];
+      if(!token) return next(new AppError(403, 'Please login'))
+      const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET)
+      if(!decoded) return next(new AppError(403, 'Please login'))
+  
 //     const token = req.headers.cookie.split('=')[1]
 //     const {id} = decoded
 //     const user = await User.findById(id)

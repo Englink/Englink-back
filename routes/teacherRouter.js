@@ -9,5 +9,6 @@ router.route('/').get(teacherControllers.getAllteachers)
 router.route('/available-teachers').post(teacherControllers.getAvailableTeachers)
 router.route('/register').post(authControllers.register)
 router.route('/login').post(authControllers.login)
+router.route('/update-availability').post(teacherControllers.updateTeacherAvailability)
 
 module.exports = router

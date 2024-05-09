@@ -22,7 +22,7 @@ const appointmentSchema = new mongoose.Schema({
     end_time: {
         type: String,
         required: true
-    },
+    }
     // status: {
     //     type: String,
     //     enum: ['scheduled', 'canceled', 'completed'],

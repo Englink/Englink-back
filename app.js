@@ -4,17 +4,21 @@ const AppError = require('./utils/AppError')
 const globalErrorHandler = require('./utils/errorHandler')
 const dotenv = require('dotenv')
 const cors = require('cors')
+const app = express();
 dotenv.config()
+const corsOptions = {
+    origin:true,
+    credentials:true
+}
 
 
+app.use(cors(corsOptions))
 const studentRouter = require('./routes/studentRoutes')
 const teacherRouter = require('./routes/teacherRouter')
 
-const app = express();
 const port = 3003;
 
 app.use(express.json())
-app.use(cors())
 app.use('/api/students',studentRouter)
 app.use('/api/teachers',teacherRouter)
 app.use((err, req, res, next) => {

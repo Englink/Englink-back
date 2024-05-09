@@ -1,6 +1,7 @@
 const asyncHandler = require('express-async-handler')
 const AppError = require('./../utils/AppError')
 const teacher = require('./../models/teacherModel')
+const availability = require('./../models/availibility')
 
 
 
@@ -42,6 +43,51 @@ exports.getAvailableTeachers = asyncHandler(async (req, res, next)=>{
     res.status(200).json({
         status: 'success',
         data: availableTeachers
+        
+    });
+});
+exports.updateTeacherAvailability = asyncHandler(async (req, res, next)=>{
+    const teacherId = req.body.teacherId; 
+    let availibleDate = req.body.date;
+    let availiblehours = req.body.hours;
+    const updatedTeacher = await teacher.findById(teacherId)
+    // console.log(updatedTeacher.availability[0].date)
+    console.log("Availability Dates:");
+    let matchingDate = updatedTeacher.availability.find(availability => availability.date === availibleDate);
+    if(!matchingDate)
+        {
+            updatedTeacher.availability.push({date:availibleDate,hours:availiblehours})  
+            await updatedTeacher.save();
+        }
+        else
+        {
+            let mergedHours =  matchingDate.hours.concat(availiblehours)
+            matchingDate.hours = mergedHours
+            await updatedTeacher.save();
+            console.log(mergedHours)
+           
+            //     const dateToUpdate = matchingDate.hours.find(availability => availability.date === availibleDate);
+            
+            // updatedTeacher.availability.push({date:availibleDate})  
+            // await updatedTeacher.save();
+            
+        }
+
+
+
+
+    // updatedTeacher.availability.forEach(availability => {
+
+
+    // });
+
+
+
+
+    
+    res.status(200).json({
+        status: 'success',
+        teacherId
         
     });
 });

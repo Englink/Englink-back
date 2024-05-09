@@ -22,7 +22,7 @@ const teacherSchema = new mongoose.Schema({
     password: {
         type: String,
         required: [true, 'Must be a password'],
-        minLength: 8,
+        // minLength: 8,
         // select: false
     },
     image: {
@@ -43,30 +43,27 @@ const teacherSchema = new mongoose.Schema({
     availability: [
         {
             date: {
-                type: Date,
-                // required: true
-            },
-            day: {
                 type: String,
-                enum: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
                 // required: true
             },
-            slots: [
+            hours: [
                 {
-                    start_time: {
-                        type: String,
-                        // required: true
-                    },
-                    end_time: {
+                    hour: {
                         type: String,
                         // required: true
                     }
                 }
             ]
         }
+       
     ]
 });
 
+// day: {
+//     type: String,
+//     enum: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+//     // required: true
+// },
 teacherSchema.pre('save', async function(next){
     if(!this.isModified('password'))
     return next()

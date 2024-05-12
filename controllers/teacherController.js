@@ -1,14 +1,16 @@
 const asyncHandler = require('express-async-handler')
 const AppError = require('./../utils/AppError')
 const teacher = require('./../models/teacherModel')
-const availability = require('./../models/availibility')
+const availabilities = require('./../models/availibility')
 
 
 
 
 exports.getAllteachers = asyncHandler(async (req, res, next)=>{
+    // console.log('e')
    
     const teachers = await teacher.find()
+    // console.log(teachers)
 
     res.status(200).json({
         status:'success',
@@ -48,42 +50,48 @@ exports.getAvailableTeachers = asyncHandler(async (req, res, next)=>{
 });
 exports.updateTeacherAvailability = asyncHandler(async (req, res, next)=>{
     const teacherId = req.body.teacherId; 
-    let availibleDate = req.body.date;
-    let availiblehours = req.body.hours;
+    const {month, year,day,hour,minute} = req.body.date;
+    const availibleDate = new Date(Date.UTC(year, month-1,day,hour,minute));
     const updatedTeacher = await teacher.findById(teacherId)
-    // console.log(updatedTeacher.availability[0].date)
-    console.log("Availability Dates:");
-    let matchingDate = updatedTeacher.availability.find(availability => availability.date === availibleDate);
-    if(!matchingDate)
-        {
-            updatedTeacher.availability.push({date:availibleDate,hours:availiblehours})  
-            await updatedTeacher.save();
+    
+    let matchingDateIndex = -1; 
+    
+    for (const [dateIndex, date] of updatedTeacher.availability.entries()) {
+        // Check if the date matches the specific date (without considering the time)
+        if (datesHaveSameDateAndTimeParts(date, availibleDate)) {
+            // Match found
+            matchingDateIndex = dateIndex; // Store the index of the matching date
+            break; // Exit the loop since a match is found
         }
-        else
-        {
-            let mergedHours =  matchingDate.hours.concat(availiblehours)
-            matchingDate.hours = mergedHours
-            await updatedTeacher.save();
-            console.log(mergedHours)
-           
-            //     const dateToUpdate = matchingDate.hours.find(availability => availability.date === availibleDate);
+    }
+    // const dateAndhour = new Date(Date.UTC(year,month-1,1,hour,minute))
+    if (matchingDateIndex !== -1) {
+        const dateChosen = updatedTeacher.availability[matchingDateIndex];
+        if (dateChosen.hours.some(hour => {
+            return Math.abs(hour.hour.getTime() - availibleDate.getTime()) / 60000 < 20;
+        }))            {
+               return res.status(500).json({
+                    status: 'failed',
+                    messege:'date not availible in this time'
+                    
+                });
             
-            // updatedTeacher.availability.push({date:availibleDate})  
-            // await updatedTeacher.save();
-            
-        }
+            }
+            else
+            {
 
+                updatedTeacher.availability[matchingDateIndex].hours.push({hour: availibleDate});
+            }
 
-
-
-    // updatedTeacher.availability.forEach(availability => {
-
-
-    // });
-
-
-
-
+        
+    } else {
+        updatedTeacher.availability.push({ date: availibleDate, hours: [{hour: availibleDate}]});
+    }
+    
+    await updatedTeacher.save();
+    
+    
+    
     
     res.status(200).json({
         status: 'success',
@@ -92,5 +100,22 @@ exports.updateTeacherAvailability = asyncHandler(async (req, res, next)=>{
     });
 });
 
+function datesHaveSameDateAndTimeParts(date1, date2) {
+    const year1 = date1.date.getFullYear();
+    const month1 = date1.date.getMonth();
+    const day1 = date1.date.getDate(); // Add this line to extract the day
+    
+    
+    const year2 = date2.getFullYear();
+    const month2 = date2.getMonth();
+    const day2 = date2.getDate(); // Add this line to extract the day
 
-
+    // console.log(Math.abs(date1.date.getTime()-date2.getTime())/60000)
+    
+    // Compare year, month, day, hour, and minute
+    return (
+        day1 === day2&&
+        month1 === month2 &&
+        year1 === year2 
+    );
+}

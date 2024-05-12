@@ -11,7 +11,7 @@ const signToken = (id) => {
     });
   };
   
-const createSendToken = (user, statusCode, res) => {
+const createSendToken = (user, statusCode, res,isStudent) => {
     const token = signToken(user._id);
     const cookieOptions = {
       expires: new Date(
@@ -20,8 +20,14 @@ const createSendToken = (user, statusCode, res) => {
       httpOnly: true,
       secure : true
     }
-    
-    res.cookie('jwt', token, cookieOptions);
+    if (isStudent)
+      res.cookie('studentJwt', token, cookieOptions);
+    else
+      res.cookie('teacherJwt', token, cookieOptions);
+
+      
+
+      
     res.status(statusCode).json({
       status: 'success',
       token,
@@ -29,24 +35,26 @@ const createSendToken = (user, statusCode, res) => {
     });
   };
 exports.login = asyncHandler(async (req, res, next)=>{
-    const {email, password} = req.body.userDetails
-    if(!email || !password) return next(new AppError(403, 'Email or password is missing1'))
-      const isStudent = req.body.isStudent
-    if (isStudent)
-      {
-        const st = await student.findOne({email})
-        if (! st || !await  st.checkPassword(password, st.password) )
-          {
-            return next(new AppError(403, 'Email or password is not correct '))
-          }
-          createSendToken(st, 201 , res) 
-        }
-        else
+  
+  const {email, password} = req.body.userDetails
+  if(!email || !password) return next(new AppError(403, 'Email or password is missing1'))
+    const isStudent = req.body.isStudent
+  console.log(req.body)
+  if (isStudent)
+    {
+      const st = await student.findOne({email})
+      if (! st || !await  st.checkPassword(password, st.password) )
         {
+          return next(new AppError(403, 'Email or password is not correct '))
+        }
+        createSendToken(st, 201 , res,isStudent) 
+      }
+      else
+      {
           const tc = await teacher.findOne({email})
           if (! tc || !await  tc.checkPassword(password, tc.password) )
             return next(new AppError(403, 'Email or password is not correct '))
-          createSendToken(tc, 201 , res) 
+          createSendToken(tc, 201 , res,isStudent) 
           
         }
       
@@ -55,6 +63,7 @@ exports.login = asyncHandler(async (req, res, next)=>{
 
  
 })
+
 
 
 exports.register = asyncHandler(async(req, res, next)=>{
@@ -84,21 +93,41 @@ exports.register = asyncHandler(async(req, res, next)=>{
 })
 
 
-exports.protect = asyncHandler(async(req,res, next)=>{
+
+exports.protectStudent = asyncHandler(async(req,res, next)=>{
     // const token = req.headers.authorization.split(' ')[1];
     // if(!token) return next(new AppError(403, 'Please login '))
     // const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET)
     // if(!decoded) return next(new AppError(403, 'Please login '))
-
-      const token = req.headers.cookie?.split('=')[1];
+      const token = req.cookies.studentJwt
       if(!token) return next(new AppError(403, 'Please login'))
-      const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET)
+        const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET)
       if(!decoded) return next(new AppError(403, 'Please login'))
+          const {id} = decoded
+          const st = await student.findById(id)
+          console.log(st)
+          if(!st) return next(new AppError(400, 'Please register'))
+          req.st = st
+
   
 //     const token = req.headers.cookie.split('=')[1]
-//     const {id} = decoded
-//     const user = await User.findById(id)
-//    if(!user) return next(new AppError(400, 'Please register'))
-//      req.user = user
+    next()
+})
+exports.protectTeacher = asyncHandler(async(req,res, next)=>{
+    // const token = req.headers.authorization.split(' ')[1];
+    // if(!token) return next(new AppError(403, 'Please login '))
+    // const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET)
+    // if(!decoded) return next(new AppError(403, 'Please login '))
+      const token = req.cookies.teacherJwt
+      if(!token) return next(new AppError(403, 'Please login'))
+        const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET)
+      if(!decoded) return next(new AppError(403, 'Please login'))
+          const {id} = decoded
+          const tc = await teacher.findById(id)
+          if(!tc) return next(new AppError(400, 'Please register'))
+          req.tc = tc
+
+  
+//     const token = req.headers.cookie.split('=')[1]
     next()
 })

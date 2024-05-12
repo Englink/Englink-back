@@ -4,7 +4,10 @@ const AppError = require('./utils/AppError')
 const globalErrorHandler = require('./utils/errorHandler')
 const dotenv = require('dotenv')
 const cors = require('cors')
+const cookieParser = require('cookie-parser');
 const app = express();
+app.use(cookieParser());
+
 dotenv.config()
 const corsOptions = {
     origin:true,
@@ -21,12 +24,6 @@ const port = 3003;
 app.use(express.json())
 app.use('/api/students',studentRouter)
 app.use('/api/teachers',teacherRouter)
-app.use((err, req, res, next) => {
-    res.status(500).json({
-        status: 'failed',
-        message: err.message
-    })
-})
 
 app.all('*', (req, res) => {
     //change

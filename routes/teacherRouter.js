@@ -4,11 +4,11 @@ const teacherControllers = require('./../controllers/teacherController')
 const router = express.Router()
 
 
-router.route('/').get(teacherControllers.getAllteachers)
+router.route('/').get(authControllers.protectStudent, teacherControllers.getAllteachers)
 
-router.route('/available-teachers').post(teacherControllers.getAvailableTeachers)
 router.route('/register').post(authControllers.register)
 router.route('/login').post(authControllers.login)
-router.route('/update-availability').post(teacherControllers.updateTeacherAvailability)
+router.route('/available-teachers').post(authControllers.protectStudent, teacherControllers.getAvailableTeachers)
+router.route('/update-availability').post(authControllers.protectTeacher,teacherControllers.updateTeacherAvailability)
 
 module.exports = router

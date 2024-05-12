@@ -38,26 +38,15 @@ const teacherSchema = new mongoose.Schema({
     },
     country:{
         type:String
+    },
+    availabilityId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'availability',
+        // required: true
     }
-    ,
-    availability: [
-        {
-            date: {
-                type: String,
-                // required: true
-            },
-            hours: [
-                {
-                    hour: {
-                        type: String,
-                        // required: true
-                    }
-                }
-            ]
-        }
-       
-    ]
-});
+
+
+        });
 
 // day: {
 //     type: String,
@@ -79,3 +68,6 @@ teacherSchema.methods.checkPassword = async function(password,hashedPassword){
 const teacher = mongoose.model('teachers', teacherSchema)
 
 module.exports = teacher
+
+
+

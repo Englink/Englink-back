@@ -105,9 +105,9 @@ exports.protectStudent = asyncHandler(async(req,res, next)=>{
       if(!decoded) return next(new AppError(403, 'Please login'))
           const {id} = decoded
           const st = await student.findById(id)
-          console.log(st)
           if(!st) return next(new AppError(400, 'Please register'))
           req.st = st
+        // console.log(st)
 
   
 //     const token = req.headers.cookie.split('=')[1]
@@ -132,8 +132,12 @@ exports.protectTeacher = asyncHandler(async(req,res, next)=>{
     next()
 })
 exports.VallidUser = asyncHandler(async(req,res, next)=>{
+  // let user = req.tc?req.tc:req.st;
+  // console.log(req)
   res.status(201).json({
     status: 'success',
+    // user
+    
     
   });
 

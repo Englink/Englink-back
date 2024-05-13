@@ -7,7 +7,7 @@ const teacher = require('../models/teacherModel')
 
 const signToken = (id) => {
     return jwt.sign({id}, process.env.JWT_SECRET, {
-      expiresIn: "3h"
+      expiresIn: "3d"
     });
   };
   

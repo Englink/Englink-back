@@ -1,7 +1,7 @@
 const asyncHandler = require('express-async-handler')
 const AppError = require('./../utils/AppError')
 const teacher = require('./../models/teacherModel')
-const availabilities = require('./../models/availibility')
+const availability = require('../models/availability')
 
 
 
@@ -50,43 +50,66 @@ exports.getAvailableTeachers = asyncHandler(async (req, res, next)=>{
 });
 exports.updateTeacherAvailability = asyncHandler(async (req, res, next)=>{
     const teacherId = req.body.teacherId; 
-    const {month, year,day,hour,minute} = req.body.date;
-    const availibleDate = new Date(Date.UTC(year, month-1,day,hour,minute));
+    const {month, year,hour,minute} = req.body.date;
+    const availibleDate = new Date(Date.UTC(year, month-1,hour,minute));
     const updatedTeacher = await teacher.findById(teacherId)
-    
-    let matchingDateIndex = -1; 
-    
-    for (const [dateIndex, date] of updatedTeacher.availability.entries()) {
-        // Check if the date matches the specific date (without considering the time)
-        if (datesHaveSameDateAndTimeParts(date, availibleDate)) {
-            // Match found
-            matchingDateIndex = dateIndex; // Store the index of the matching date
-            break; // Exit the loop since a match is found
-        }
-    }
-    // const dateAndhour = new Date(Date.UTC(year,month-1,1,hour,minute))
-    if (matchingDateIndex !== -1) {
-        const dateChosen = updatedTeacher.availability[matchingDateIndex];
-        if (dateChosen.hours.some(hour => {
-            return Math.abs(hour.hour.getTime() - availibleDate.getTime()) / 60000 < 20;
-        }))            {
-               return res.status(500).json({
-                    status: 'failed',
-                    messege:'date not availible in this time'
-                    
-                });
-            
-            }
-            else
+   
+        if (!updatedTeacher.availabilityId)
             {
-
-                updatedTeacher.availability[matchingDateIndex].hours.push({hour: availibleDate});
+                const newA =   await availability.create({availability:[{date:availibleDate,hours: [{ hour: availibleDate }] }]});
+                updatedTeacher.availabilityId = newA._id
+    
             }
+        else
+        {
+            const teacherAvailability = await availability.findById(updatedTeacher.availabilityId)
+            const dateobj = teacherAvailability.availability.find((d) => {
+                console.log("d.date:", d.date);
+                console.log("availibleDate:", availibleDate);
+                return d.date === availibleDate;
+            });
+                        console.log(dateobj)
+
+            
+        }
+
+    
+
+
+    
+    // let matchingDateIndex = -1; 
+    
+    // for (const [dateIndex, date] of availabilities.entries()) {
+    //     // Check if the date matches the specific date (without considering the time)
+    //     if (datesHaveSameDateAndTimeParts(date, availibleDate)) {
+    //         // Match found
+    //         matchingDateIndex = dateIndex; // Store the index of the matching date
+    //         break; // Exit the loop since a match is found
+    //     }
+    // }
+    // // const dateAndhour = new Date(Date.UTC(year,month-1,1,hour,minute))
+    // if (matchingDateIndex !== -1) {
+    //     const dateChosen = updatedTeacher.availability[matchingDateIndex];
+    //     if (dateChosen.hours.some(hour => {
+    //         return Math.abs(hour.hour.getTime() - availibleDate.getTime()) / 60000 < 20;
+    //     }))            {
+    //            return res.status(500).json({
+    //                 status: 'failed',
+    //                 messege:'date not availible in this time'
+                    
+    //             });
+            
+    //         }
+    //         else
+    //         {
+
+    //             updatedTeacher.availability[matchingDateIndex].hours.push({hour: availibleDate});
+    //         }
 
         
-    } else {
-        updatedTeacher.availability.push({ date: availibleDate, hours: [{hour: availibleDate}]});
-    }
+    // } else {
+    //     updatedTeacher.availability.push({ date: availibleDate, hours: [{hour: availibleDate}]});
+    // }
     
     await updatedTeacher.save();
     

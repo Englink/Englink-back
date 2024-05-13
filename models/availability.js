@@ -1,8 +1,7 @@
 const mongoose = require('mongoose');
 
 const avalibilitySchema = new mongoose.Schema(
-    {
-    availabilities: [
+   
         {
         availability: [
             {
@@ -23,12 +22,12 @@ const avalibilitySchema = new mongoose.Schema(
     }
     
       
-    ]
-}
+    
+
 
 
  
 );
 
-const avalibility = mongoose.model('avalibility', avalibilitySchema);
-
+const availability= mongoose.model('availability', avalibilitySchema);
+module.exports = availability

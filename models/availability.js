@@ -7,13 +7,13 @@ const avalibilitySchema = new mongoose.Schema(
             {
                 date: {
                     type: Date,
-                    required: true
+                    // required: true
                 },
                 hours: [
                     {
                         hour: {
                             type: Date,
-                            required: true
+                            // required: true
                         }
                     }
                 ]

@@ -10,5 +10,6 @@ router.route('/register').post(authControllers.register)
 router.route('/login').post(authControllers.login)
 router.route('/available-teachers').post(authControllers.protectStudent, teacherControllers.getAvailableTeachers)
 router.route('/update-availability').post(authControllers.protectTeacher,teacherControllers.updateTeacherAvailability)
+router.route('/get-teacher-availability').post(authControllers.protectTeacher,teacherControllers.getTeacherAvailability)
 
 module.exports = router

@@ -7,7 +7,7 @@ const router = express.Router()
 
 
 router.route('/').get(authControllers.protectStudent, teacherControllers.getAllteachers)
-router.route('/protect').get(authControllers.protectStudent)
+router.route('/protect').get(authControllers.protectStudent,authControllers.VallidUser)
 
 router.route('/register').post(authControllers.register)
 router.route('/login').post(authControllers.login)

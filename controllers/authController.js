@@ -131,3 +131,11 @@ exports.protectTeacher = asyncHandler(async(req,res, next)=>{
 //     const token = req.headers.cookie.split('=')[1]
     next()
 })
+exports.VallidUser = asyncHandler(async(req,res, next)=>{
+  res.status(statusCode).json({
+    status: 'success',
+    
+  });
+
+  
+})

@@ -15,6 +15,10 @@ const studentSchema = new mongoose.Schema({
 
         // required: [true, 'Please provide a gender'],
     },
+    image: {
+        type: String
+    },
+
     email: {
         type: String,
         required: [true, 'Please provide an email'],

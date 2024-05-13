@@ -132,7 +132,7 @@ exports.protectTeacher = asyncHandler(async(req,res, next)=>{
     next()
 })
 exports.VallidUser = asyncHandler(async(req,res, next)=>{
-  res.status(statusCode).json({
+  res.status(201).json({
     status: 'success',
     
   });

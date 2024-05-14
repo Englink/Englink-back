@@ -2,6 +2,7 @@ const asyncHandler = require('express-async-handler')
 const AppError = require('./../utils/AppError')
 const teacher = require('./../models/teacherModel')
 const availability = require('../models/availability')
+const mongoose = require('mongoose')
 
 
 
@@ -118,6 +119,55 @@ exports.updateTeacherAvailability = asyncHandler(async (req, res, next)=>{
                 
             });
         })
+    exports.CanceleTeacherAvailability = asyncHandler(async (req, res, next)=>
+        {
+            const teacher =  req.tc;
+            const availabilityIdDay = req.params.id.split('-')[0]
+            const availabilityIdhour = req.params.id.split('-')[1]
+            let teacherAvailabilityObj = await availability.findById(teacher.availabilityId)
+            let canceledDayObj = teacherAvailabilityObj.availability.find(dateObj=>
+                {
+                   return dateObj._id.toString() === availabilityIdDay
+                }
+            )
+            let indexToRemove =-1
+            for (const [index, hourObj] of canceledDayObj.hours.entries()) {
+                if (hourObj._id.toString() === availabilityIdhour)
+                    {
+                        indexToRemove = index
+                    }
+            }
+            if (indexToRemove!==-1)
+                {
+                    canceledDayObj.hours.splice(indexToRemove,1)
+                    if(canceledDayObj.hours.length == 0)
+                        {
+                            console.log('enter h')
+                            await availability.updateOne(
+                                { _id: teacherAvailabilityObj._id},
+                                { $pull: { availability: { _id:canceledDayObj._id } } })
+                                if(teacherAvailabilityObj.availability.length == 0)
+                                    console.log('enter d')
+                                    {
+                                    await availability.findByIdAndDelete(teacherAvailabilityObj._id)
+                                }
+                        }
+                                            
+                        
+                    }
+                res.status(200).json({
+                    status: 'success',
+                    
+                });
+              
+            })
+                
+
+                
+
+              
+
+
 
 
 

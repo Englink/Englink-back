@@ -108,7 +108,7 @@ exports.updateTeacherAvailability = asyncHandler(async (req, res, next)=>{
             }
     exports.getTeacherAvailability = asyncHandler(async (req, res, next)=>
         {
-            const teacherId = req.body.teacherId; 
+            const teacherId = req.params.teacherId; 
             const teacherObj = await teacher.findById(teacherId).populate('availabilityId')
             const availability = teacherObj.availabilityId.availability
             res.status(200).json({
@@ -117,13 +117,13 @@ exports.updateTeacherAvailability = asyncHandler(async (req, res, next)=>{
                 
                 
             });
-
-
-
-
-
-
         })
+
+
+
+
+
+
 
 
 

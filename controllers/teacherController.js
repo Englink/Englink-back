@@ -33,7 +33,7 @@ exports.getAvailableTeachers = asyncHandler(async (req, res, next)=>{
     });
 });
 exports.updateTeacherAvailability = asyncHandler(async (req, res, next)=>{
-    const teacherId = req.body.teacherId; 
+    const teacherId =  req.tc?req.tc._id:req.st._id;
     const {month, year,day,hour,minute} = req.body.date;
     const availibleDate = new Date(Date.UTC(year, month-1,day,hour,minute));
     const updatedTeacher = await teacher.findById(teacherId)

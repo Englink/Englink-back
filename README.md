@@ -1,1 +1,1 @@
-project in bulding process
+project in building process

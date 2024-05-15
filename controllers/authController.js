@@ -20,6 +20,7 @@ const createSendToken = (user, statusCode, res,isStudent) => {
       httpOnly: true,
       secure : true
     }
+    console.log(isStudent)
     if (isStudent)
       res.cookie('studentJwt', token, cookieOptions);
     else
@@ -70,6 +71,7 @@ exports.register = asyncHandler(async(req, res, next)=>{
 
       const {email, password} = req.body.userDetails
       const isStudent = req.body.isStudent
+      console.log(isStudent)
       if (!email ||!password)
      return next(new AppError(403,'Request details are missing'))
     
@@ -79,7 +81,7 @@ exports.register = asyncHandler(async(req, res, next)=>{
         if (st)
         return next(new AppError(403,'student already in the database'))
         const newStudent = await student.create(req.body.userDetails)
-        createSendToken(newStudent, 201 , res)
+        createSendToken(newStudent, 201 , res,isStudent)
     }
     else
     {
@@ -87,7 +89,7 @@ exports.register = asyncHandler(async(req, res, next)=>{
         if (tc)
         return next(new AppError(403,'teacher already in the database'))
         const newTeacher = await teacher.create(req.body.userDetails);
-        createSendToken(newTeacher, 201 , res)
+        createSendToken(newTeacher, 201 , res,isStudent)
       }
 
 })

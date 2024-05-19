@@ -1,24 +1,31 @@
 const mongoose = require('mongoose');
 
 const appointmentSchema = new mongoose.Schema({
-    teacher: {
+    teacherId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Teacher',
+        ref: 'users',
         required: true
     },
-    student: {
+    studentId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Student',
+        ref: 'users',
         required: true
     },
     date: {
         type: Date,
         required: true
-    },
-    hour: {
-        type: Date,
-        required: true
     }
+});
+appointmentSchema.set('toJSON', {
+    transform: function (doc, ret) {
+        ret.teacherDetails = ret.teacherId;
+        delete ret.teacherId;
+        ret.studentDetails = ret.studentId;
+        delete ret.studentId;
+        delete ret.teacherDetails.password;
+        delete ret.studentDetails.password;
+    }
+       
     
     // status: {
     //     type: String,

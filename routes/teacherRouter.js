@@ -4,7 +4,7 @@ const teacherControllers = require('./../controllers/teacherController')
 const router = express.Router()
 
 
-router.route('/').get(authControllers.protect, teacherControllers.getAllteachers)
+router.route('/').get(teacherControllers.getAllteachers)
 
 router.route('/register').post(authControllers.register)
 router.route('/login').post(authControllers.login)

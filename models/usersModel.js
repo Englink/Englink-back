@@ -17,7 +17,7 @@ const userSchema = new mongoose.Schema({
     email: {
         type: String,
         required: [true, 'Please provide email'],
-        unique: true
+        // unique: true
     },
     password: {
         type: String,
@@ -52,6 +52,8 @@ const userSchema = new mongoose.Schema({
 
 
         }});
+userSchema.index({ email: 1, role: 1 }, { unique: true });
+
 
 userSchema.pre('save', async function(next){
     if(!this.isModified('password'))

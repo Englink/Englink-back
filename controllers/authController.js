@@ -44,7 +44,8 @@ const createSendToken = (user, statusCode, res) => {
       return next(new AppError(403, 'Role is missing'));
     }
   
-    const user1 = await user.findOne({ email });
+    const user1 = await user.findOne({ email,role });
+    console.log(user1)
   
     if (!user1 || !await user1.checkPassword(password, user1.password)) {
       return next(new AppError(403, 'Email or password is incorrect'));
@@ -70,10 +71,16 @@ exports.register = asyncHandler(async(req, res, next)=>{
     //   {
         const user1 = await user.find({email})
         if (user1.length > 1)
-        return next(new AppError(403,'user already register as teacher and as student'))
-      if (user1.length == 1 && user1[0].role == req.body.userDetails.role)
-        return next(new AppError(403,'user already register with the same role'))
-        const newUser = await user.create(req.body.userDetails)
+          {
+
+            return next(new AppError(403,'user already register as teacher and as student'))
+          }
+        if (user1.length == 1 && user1[0].role === req.body.userDetails.role)
+          {
+            return next(new AppError(403,'user already register with the same role'))
+          }
+          console.log('e')
+          const newUser = await user.create(req.body.userDetails)
         createSendToken(newUser, 201 , res)
     // }
     // else

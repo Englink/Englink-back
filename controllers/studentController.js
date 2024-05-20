@@ -68,7 +68,7 @@ exports.CanceleLesson = asyncHandler(async (req, res, next)=>
                     res.status(200).json({
                         status: 'success',
                         newAvailableDate,
-                        cancelleLesson, // Include the new available date in the response
+                        cancelleLesson // Include the new available date in the response
                     });
                 } else {
                     res.status(200).json({
@@ -98,11 +98,11 @@ exports.GetStudentsLessons = asyncHandler(async (req, res, next)=>
                status:'success',
                lessons
        })
+    })
 
 
 
       
-    })
 
 
 

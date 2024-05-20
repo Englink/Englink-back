@@ -88,6 +88,24 @@ exports.updateTeacherAvailability = asyncHandler(async (req, res, next)=>{
                     
                 });
             })
+        exports.GetTeacherLessons = asyncHandler(async (req, res, next)=>
+            {
+                const tcId = req.user._id
+                const lessons = await appointment.find({teacherId:tcId})
+                .populate({
+                    path: 'teacherId'
+                })
+                .populate({
+                    path: 'studentId'
+                });
+                                
+                    res.status(200).json({
+                        status:'success',
+                        lessons
+                })
+            })
+            
+            
     
               
 

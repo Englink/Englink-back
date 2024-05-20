@@ -13,6 +13,6 @@ router.route('/register').post(authControllers.register)
 router.route('/login').post(authControllers.login)
 router.route('/cancele-lesson/:id').delete(authControllers.protect,studentControllers.CanceleLesson)
 router.route('/get-student-lessons').get(authControllers.protect,authControllers.restrictTo(['student']),studentControllers.GetStudentsLessons)
-router.route('/validate').get(authControllers.protect,authControllers.restrictTo(['student','teacher']),authControllers.validUser)
+router.route('/validate').get(authControllers.protect,authControllers.validUser)
 
 module.exports = router

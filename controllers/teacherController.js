@@ -1,6 +1,5 @@
 const asyncHandler = require('express-async-handler')
 const AppError = require('./../utils/AppError')
-const teacher = require('./../models/teacherModel')
 const appointment = require('../models/appontments')
 const availability = require('../models/availability')
 const user = require('../models/usersModel')

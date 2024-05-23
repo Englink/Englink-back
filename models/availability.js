@@ -17,6 +17,8 @@ availabilitySchema.set('toJSON', {
     transform: function (doc, ret) {
         ret.teacherDetails = ret.teacherId;
         delete ret.teacherId;
+        delete ret.teacherDetails.password
+
        
     }
 });

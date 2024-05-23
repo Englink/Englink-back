@@ -2,8 +2,6 @@ const jwt = require('jsonwebtoken')
 const asyncHandler = require('express-async-handler')
 const AppError = require('./../utils/AppError')
 const {promisify} = require('util')
-const student = require('./../models/studentModel')
-const teacher = require('../models/teacherModel')
 const user = require('../models/usersModel')
 
 const signToken = (id) => {
@@ -61,7 +59,7 @@ const createSendToken = (user, statusCode, res) => {
 
 exports.register = asyncHandler(async(req, res, next)=>{
 
-      const {email, password} = req.body.userDetails
+      const {email, password,role} = req.body.userDetails
       // const isStudent = req.body.isStudent
       // console.log(isStudent)
       if (!email ||!password)
@@ -75,14 +73,14 @@ exports.register = asyncHandler(async(req, res, next)=>{
 
             return next(new AppError(403,'user already register as teacher and as student'))
           }
-        if (user1.length == 1 && user1[0].role === req.body.userDetails.role)
+        if (user1.length == 1 && user1[0].role === role)
           {
             return next(new AppError(403,'user already register with the same role'))
           }
           console.log('e')
           const newUser = await user.create(req.body.userDetails)
         createSendToken(newUser, 201 , res)
-    // }
+    // } \
     // else
     // {
     //     const tc = await teacher.findOne({email})

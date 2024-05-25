@@ -3,6 +3,7 @@ const AppError = require('./../utils/AppError')
 const appointment = require('../models/appontments')
 const availability = require('../models/availability')
 const user = require('../models/usersModel')
+const moment = require('moment-timezone');
 
 
 
@@ -23,7 +24,12 @@ exports.updateTeacherAvailability = asyncHandler(async (req, res, next)=>{
     const tcId =  req.user._id
     // console.log(tcId)
     const {month, year,day,hour,minute} = req.body.date;
-    const availibleDate = new Date(Date.UTC(year, month-1,day,hour,minute));
+    // const availibleDate = moment.tz(new Date(year, month-1,day,hour,minute,0), "Asia/Jerusalem");
+
+    const availibleDate = new Date(year, month-1,day,hour,minute,0);
+    // console.log(new Date(availibleDate).toLocaleTimeString())
+    // return next(new AppError(500, 'cannot set availability in this date ,becouse lesson'))
+
     const teacherDates = await availability.find({teacherId:tcId})
     if (teacherDates.some(dObj=>
         {

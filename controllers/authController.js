@@ -32,7 +32,6 @@ const createSendToken = (user, statusCode, res) => {
   };
 
   exports.login = asyncHandler(async (req, res, next) => {
-    console.log(req)
     const { email, password, role } = req.body.userDetails;
   
     if (!email || !password) {
@@ -49,9 +48,6 @@ const createSendToken = (user, statusCode, res) => {
     if (!user1 || !await user1.checkPassword(password, user1.password)) {
       return next(new AppError(403, 'Email or password is incorrect'));
     }
-    // if (user1.role !== role) {
-    //   return next(new AppError(403, `You are not authorized to log in as a ${role}`));
-    // }
   
     createSendToken(user1, 201, res);
   });
@@ -150,4 +146,4 @@ exports.validUser = asyncHandler(async(req,res, next)=>{
 
   
 })
-
+console.log('try')

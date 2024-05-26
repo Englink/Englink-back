@@ -65,7 +65,7 @@ const createSendToken = (user, statusCode, res) => {
 
 
 
-
+console.log()
 exports.register = asyncHandler(async(req, res, next) => {
  
 

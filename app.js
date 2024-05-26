@@ -9,6 +9,10 @@ const dotenv = require('dotenv')
 const cors = require('cors')
 const cookieParser = require('cookie-parser');
 const app = express();
+const zoom = require('./controllers/zoomController')
+
+
+
 app.use(cookieParser());
 
 dotenv.config()
@@ -28,6 +32,7 @@ const port = 3003;
 app.use(express.json())
 app.use('/api/students',studentRouter)
 app.use('/api/teachers',teacherRouter)
+app.get('/zoom',zoom.handelZoom)
 
 app.all('*', (req, res) => {
     //change

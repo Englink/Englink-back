@@ -2,8 +2,6 @@ const jwt = require('jsonwebtoken')
 const asyncHandler = require('express-async-handler')
 const AppError = require('./../utils/AppError')
 const {promisify} = require('util')
-const student = require('./../models/studentModel')
-const teacher = require('../models/teacherModel')
 const user = require('../models/usersModel')
 // const nodemailer = require('nodemailer');
 
@@ -37,6 +35,7 @@ const createSendToken = (user, statusCode, res) => {
   };
 
   exports.login = asyncHandler(async (req, res, next) => {
+    console.log(req)
     const { email, password, role } = req.body.userDetails;
   
     if (!email || !password) {
@@ -47,14 +46,15 @@ const createSendToken = (user, statusCode, res) => {
       return next(new AppError(403, 'Role is missing'));
     }
   
-    const user1 = await user.findOne({ email });
+    const user1 = await user.findOne({ email,role });
+    console.log(user1)
   
     if (!user1 || !await user1.checkPassword(password, user1.password)) {
       return next(new AppError(403, 'Email or password is incorrect'));
     }
-    if (user1.role !== role) {
-      return next(new AppError(403, `You are not authorized to log in as a ${role}`));
-    }
+    // if (user1.role !== role) {
+    //   return next(new AppError(403, `You are not authorized to log in as a ${role}`));
+    // }
   
     createSendToken(user1, 201, res);
   });
@@ -67,21 +67,36 @@ const createSendToken = (user, statusCode, res) => {
 
 
 exports.register = asyncHandler(async(req, res, next) => {
-  const { email, password, name ,role} = req.body.userDetails;
+ 
 
-  if (!email || !password)
-      return next(new AppError(403,'Request details are missing'));
+     
+        
+
+
+ 
 
   
-      // בדיקה אם המשתמש כבר קיים במערכת
-      const user1 = await user.findOne({ email});
-      if (user1)
-          return next(new AppError(403, 'User already exists in the database'));
+      const {email, password,role,name} = req.body.userDetails
+      // const isStudent = req.body.isStudent
+      // console.log(isStudent)
+      if (!email ||!password)
+     return next(new AppError(403,'Request details are missing'))
+    
+    // if (isStudent)
+    //   {
+        const user1 = await user.find({email})
+        if (user1.length > 1)
+          {
 
-      // יצירת המשתמש החדש
-      const newUser = await user.create(req.body.userDetails);
-
-      // שליחת מייל אישור רישום
+            return next(new AppError(403,'user already register as teacher and as student'))
+          }
+        if (user1.length == 1 && user1[0].role === role)
+          {
+            return next(new AppError(403,'user already register with the same role'))
+          }
+          console.log('e')
+          const newUser = await user.create(req.body.userDetails)
+            // שליחת מייל אישור רישום
       await sendEmail({
         to: 'pninam56@gmail.com',
         // to: email,
@@ -93,36 +108,8 @@ exports.register = asyncHandler(async(req, res, next) => {
 
       // הגורם המאפשר יצירת טוקן וקוד תגובה 201
       createSendToken(newUser, 201, res);
-  
-});
-
-
-        
-
-
-  //         // הגדרת אפשרויות המייל
-  //   const mailOptions = {
-  //     from: process.env.NODEMAILER_EMAIL,
-  //     // to: 'pninam56@gmail.com',
-  //     to: email,
-  //     subject: 'Welcome to Our Website',
-      // text: `${name}, thank you for registering to LearnLink!`,
-  //     html: `<h1>Welcome ${name}</h1><p>Thank you for registering to LearnLink!</p>`
-
-  // };
-
-
-  //  // שליחת המייל
-  //  transporter.sendMail(mailOptions, (error, info) => {
-  //   if (error) {
-  //       console.log(error);
-  //       // למרות שיש שגיאה בשליחת המייל, המשתמש נרשם בהצלחה
-  //       return res.status(500).json({ message: 'Registration successful, but error sending email' });
-  //   }
-  //   console.log('Email sent: ' + info.response);
-
-  // });
-    // }
+        createSendToken(newUser, 201 , res)
+    // } \
     // else
     // {
     //     const tc = await teacher.findOne({email})

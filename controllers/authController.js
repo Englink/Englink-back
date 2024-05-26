@@ -108,7 +108,6 @@ exports.register = asyncHandler(async(req, res, next) => {
 
       // הגורם המאפשר יצירת טוקן וקוד תגובה 201
       createSendToken(newUser, 201, res);
-        createSendToken(newUser, 201 , res)
     // } \
     // else
     // {

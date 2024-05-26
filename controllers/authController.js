@@ -124,6 +124,7 @@ exports.protect = asyncHandler(async(req,res, next)=>{
 //     next()
 // })
 exports.restrictTo = (roles) => {
+  console.log('136')
   return (req, res, next) => {
     
     if (!roles.includes(req.user.role)) {

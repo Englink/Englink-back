@@ -5,6 +5,9 @@ const {promisify} = require('util')
 const student = require('./../models/studentModel')
 const teacher = require('../models/teacherModel')
 const user = require('../models/usersModel')
+// const nodemailer = require('nodemailer');
+
+const sendEmail = require('../utils/sending_messages'); // ייבוא הפונקציה לשליחת המייל
 
 const signToken = (id) => {
     return jwt.sign({id}, process.env.JWT_SECRET, {
@@ -26,7 +29,7 @@ const createSendToken = (user, statusCode, res) => {
       
 
       
-    res.status(statusCode).json({
+   res.status(statusCode).json({
       status: 'success',
       token,
       user
@@ -56,23 +59,97 @@ const createSendToken = (user, statusCode, res) => {
     createSendToken(user1, 201, res);
   });
   
+// // הגדרת הטרנספורטר של nodemailer
+// const transporter = nodemailer.createTransport({
+//   service: 'gmail',
+//   auth: {
+//       user: process.env.NODEMAILER_EMAIL,
+//       pass: process.env.NODEMAILER_PASS
+//   }
+// });
 
 
-exports.register = asyncHandler(async(req, res, next)=>{
 
-      const {email, password} = req.body.userDetails
-      // const isStudent = req.body.isStudent
-      // console.log(isStudent)
-      if (!email ||!password)
-     return next(new AppError(403,'Request details are missing'))
+
+// exports.register = asyncHandler(async(req, res, next)=>{
+
+//       const {email, password, name} = req.body.userDetails
+//       // const isStudent = req.body.isStudent
+//       // console.log(isStudent)
+//       if (!email ||!password)
+//      return next(new AppError(403,'Request details are missing'))
     
-    // if (isStudent)
-    //   {
-        const user1 = await user.findOne({email})
-        if (user1)
-        return next(new AppError(403,'user already in the database'))
-        const newUser = await user.create(req.body.userDetails)
-        createSendToken(newUser, 201 , res)
+//     // if (isStudent)
+//     //   {
+//         const user1 = await user.findOne({email})
+//         if (user1)
+//         return next(new AppError(403,'user already in the database'))
+//         const newUser = await user.create(req.body.userDetails)
+//         createSendToken(newUser, 201 , res)
+  
+
+
+
+
+
+
+
+exports.register = asyncHandler(async(req, res, next) => {
+  const { email, password, name ,role} = req.body.userDetails;
+
+  if (!email || !password)
+      return next(new AppError(403,'Request details are missing'));
+
+  
+      // בדיקה אם המשתמש כבר קיים במערכת
+      const user1 = await user.findOne({ email});
+      if (user1)
+          return next(new AppError(403, 'User already exists in the database'));
+
+      // יצירת המשתמש החדש
+      const newUser = await user.create(req.body.userDetails);
+
+      // שליחת מייל אישור רישום
+      await sendEmail({
+        to: 'pninam56@gmail.com',
+        // to: email,
+        subject: 'Welcome to Our Website',
+        // text: `${role, name}, thank you for registering to LearnLink!`,
+        html: `<h1>Welcome ${role} ${name}</h1><p>Thank you for registering to LearnLink!</p>`
+
+      });
+
+      // הגורם המאפשר יצירת טוקן וקוד תגובה 201
+      createSendToken(newUser, 201, res);
+  
+});
+
+
+        
+
+
+  //         // הגדרת אפשרויות המייל
+  //   const mailOptions = {
+  //     from: process.env.NODEMAILER_EMAIL,
+  //     // to: 'pninam56@gmail.com',
+  //     to: email,
+  //     subject: 'Welcome to Our Website',
+      // text: `${name}, thank you for registering to LearnLink!`,
+  //     html: `<h1>Welcome ${name}</h1><p>Thank you for registering to LearnLink!</p>`
+
+  // };
+
+
+  //  // שליחת המייל
+  //  transporter.sendMail(mailOptions, (error, info) => {
+  //   if (error) {
+  //       console.log(error);
+  //       // למרות שיש שגיאה בשליחת המייל, המשתמש נרשם בהצלחה
+  //       return res.status(500).json({ message: 'Registration successful, but error sending email' });
+  //   }
+  //   console.log('Email sent: ' + info.response);
+
+  // });
     // }
     // else
     // {
@@ -83,7 +160,7 @@ exports.register = asyncHandler(async(req, res, next)=>{
     //     createSendToken(newTeacher, 201 , res,isStudent)
     //   }
 
-})
+// })
 
 
 

@@ -34,15 +34,9 @@ const getToken = async () => {
 const createMeeting = async (accessToken, userEmail) => {
   // console.log(accessToken)
     const createMeetingUrl = `https://api.zoom.us/v2/users/${encodeURIComponent(userEmail)}/meetings`;
-    const offsetMinutes = new Date().getTimezoneOffset();
-    const offsetMilliseconds = offsetMinutes * 60 * 1000; // Convert minutes to milliseconds
-    
-    let currentTimeWithOffset = new Date(Date.now() - offsetMilliseconds);
-    currentTimeWithOffset = currentTimeWithOffset.toISOString()
-    const d = new Date()
-    // const israelTime = moment.tz(new Date(), "Asia/Jerusalem");
-    // console.log('Current Date in Israel:', israelTime.hour());
-    
+    const d =new Date()
+    // d.setHours(d.getHours()+1)
+    // console.log(d)
     const meetingDetails = {
         topic: "Teacher-Student Meeting",
         type: 2,
@@ -73,6 +67,9 @@ exports.handelZoom = asyncHandler(async (req, res, next) => {
     const token = await getToken();
     const userEmail = 'shlomoww@gmail.com'; // Replace with the email of the desired host
     const meeting = await createMeeting(token,userEmail);
+    // console.log(meeting.start_time)
+    // const a = moment.tz(new Date(meeting.start_time),"Asia/Jerusalem")
+    // console.log(a.clone())
     res.status(200).json({
         status: 'success',
         meeting

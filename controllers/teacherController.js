@@ -21,6 +21,7 @@ exports.getAllteachers = asyncHandler(async (req, res, next)=>{
    
     
 exports.updateTeacherAvailability = asyncHandler(async (req, res, next)=>{
+    // console.log(moment.tz.guess())
     const tcId =  req.user._id
     // console.log(tcId)
     const {month, year,day,hour,minute} = req.body.date;

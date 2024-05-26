@@ -59,34 +59,6 @@ const createSendToken = (user, statusCode, res) => {
     createSendToken(user1, 201, res);
   });
   
-// // הגדרת הטרנספורטר של nodemailer
-// const transporter = nodemailer.createTransport({
-//   service: 'gmail',
-//   auth: {
-//       user: process.env.NODEMAILER_EMAIL,
-//       pass: process.env.NODEMAILER_PASS
-//   }
-// });
-
-
-
-
-// exports.register = asyncHandler(async(req, res, next)=>{
-
-//       const {email, password, name} = req.body.userDetails
-//       // const isStudent = req.body.isStudent
-//       // console.log(isStudent)
-//       if (!email ||!password)
-//      return next(new AppError(403,'Request details are missing'))
-    
-//     // if (isStudent)
-//     //   {
-//         const user1 = await user.findOne({email})
-//         if (user1)
-//         return next(new AppError(403,'user already in the database'))
-//         const newUser = await user.create(req.body.userDetails)
-//         createSendToken(newUser, 201 , res)
-  
 
 
 

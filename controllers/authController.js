@@ -3,6 +3,9 @@ const asyncHandler = require('express-async-handler')
 const AppError = require('./../utils/AppError')
 const {promisify} = require('util')
 const user = require('../models/usersModel')
+// const nodemailer = require('nodemailer');
+
+const sendEmail = require('../utils/sending_messages'); // ייבוא הפונקציה לשליחת המייל
 
 const signToken = (id) => {
     return jwt.sign({id}, process.env.JWT_SECRET, {
@@ -24,7 +27,7 @@ const createSendToken = (user, statusCode, res) => {
       
 
       
-    res.status(statusCode).json({
+   res.status(statusCode).json({
       status: 'success',
       token,
       user
@@ -58,9 +61,22 @@ const createSendToken = (user, statusCode, res) => {
   
 
 
-exports.register = asyncHandler(async(req, res, next)=>{
 
-      const {email, password,role} = req.body.userDetails
+
+
+
+
+exports.register = asyncHandler(async(req, res, next) => {
+ 
+
+     
+        
+
+
+ 
+
+  
+      const {email, password,role,name} = req.body.userDetails
       // const isStudent = req.body.isStudent
       // console.log(isStudent)
       if (!email ||!password)
@@ -80,6 +96,18 @@ exports.register = asyncHandler(async(req, res, next)=>{
           }
           console.log('e')
           const newUser = await user.create(req.body.userDetails)
+            // שליחת מייל אישור רישום
+      await sendEmail({
+        to: 'pninam56@gmail.com',
+        // to: email,
+        subject: 'Welcome to Our Website',
+        // text: `${role, name}, thank you for registering to LearnLink!`,
+        html: `<h1>Welcome ${role} ${name}</h1><p>Thank you for registering to LearnLink!</p>`
+
+      });
+
+      // הגורם המאפשר יצירת טוקן וקוד תגובה 201
+      createSendToken(newUser, 201, res);
         createSendToken(newUser, 201 , res)
     // } \
     // else
@@ -91,7 +119,7 @@ exports.register = asyncHandler(async(req, res, next)=>{
     //     createSendToken(newTeacher, 201 , res,isStudent)
     //   }
 
-})
+// })
 
 
 

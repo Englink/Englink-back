@@ -1,4 +1,7 @@
 const express = require('express');
+// const nodemailer = require('nodemailer');
+// const bodyParser = require('body-parser');
+
 const mongoose = require('mongoose');
 const AppError = require('./utils/AppError')
 const globalErrorHandler = require('./utils/errorHandler')
@@ -21,7 +24,8 @@ const corsOptions = {
 
 app.use(cors(corsOptions))
 const studentRouter = require('./routes/studentRoutes')
-const teacherRouter = require('./routes/teacherRouter')
+const teacherRouter = require('./routes/teacherRouter');
+const { log } = require('util');
 
 const port = 3003;
 

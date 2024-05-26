@@ -22,7 +22,7 @@ const userSchema = new mongoose.Schema({
     password: {
         type: String,
         required: [true, 'Must be a password'],
-        // minLength: 8,
+        // minLength: 8
         // select: false
     },
     image: {
@@ -56,6 +56,7 @@ userSchema.index({ email: 1, role: 1 }, { unique: true });
 
 
 userSchema.pre('save', async function(next){
+    console.log(this.password);
     if(!this.isModified('password'))
     return next()
     const salt = await bcrypt.genSalt(12)

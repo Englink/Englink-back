@@ -7,8 +7,8 @@ const router = express.Router()
 
 
 router.route('/').get(authControllers.protect, studentControllers.getAllstudents)
+router.route('/updating-user-details').put(authControllers.protect,studentControllers.Update_the_user_information)
 router.route('/set-lesson/:id').put(authControllers.protect,authControllers.restrictTo(['student']), studentControllers.setLesson)
-
 router.route('/register').post(authControllers.register)
 router.route('/login').post(authControllers.login)
 router.route('/cancele-lesson/:id').delete(authControllers.protect,studentControllers.CanceleLesson)

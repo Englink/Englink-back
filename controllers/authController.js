@@ -3,7 +3,7 @@ const asyncHandler = require('express-async-handler')
 const AppError = require('./../utils/AppError')
 const {promisify} = require('util')
 const user = require('../models/usersModel')
-// const nodemailer = require('nodemailer');
+const nodemailer = require('nodemailer');
 
 const sendEmail = require('../utils/sending_messages'); // ייבוא הפונקציה לשליחת המייל
 
@@ -119,7 +119,7 @@ exports.register = asyncHandler(async(req, res, next) => {
     //     createSendToken(newTeacher, 201 , res,isStudent)
     //   }
 
-// })
+})
 
 
 

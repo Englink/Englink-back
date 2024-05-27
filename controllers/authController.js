@@ -13,7 +13,7 @@ const signToken = (id) => {
     });
   };
   
-const createSendToken = (user, statusCode, res) => {
+const createSendToken =async (user, statusCode, res) => {
     const token = signToken(user._id);
     const cookieOptions = {
       expires: new Date(
@@ -26,16 +26,16 @@ const createSendToken = (user, statusCode, res) => {
 
       
 
-      
    res.status(statusCode).json({
       status: 'success',
       token,
       user
     });
+
+
   };
 
   exports.login = asyncHandler(async (req, res, next) => {
-    console.log(req)
     const { email, password, role } = req.body.userDetails;
   
     if (!email || !password) {
@@ -55,8 +55,10 @@ const createSendToken = (user, statusCode, res) => {
     // if (user1.role !== role) {
     //   return next(new AppError(403, `You are not authorized to log in as a ${role}`));
     // }
-  
+
     createSendToken(user1, 201, res);
+    
+
   });
   
 
@@ -65,7 +67,6 @@ const createSendToken = (user, statusCode, res) => {
 
 
 
-console.log()
 exports.register = asyncHandler(async(req, res, next) => {
  
 
@@ -96,17 +97,16 @@ exports.register = asyncHandler(async(req, res, next) => {
           }
           console.log('e')
           const newUser = await user.create(req.body.userDetails)
-            // שליחת מייל אישור רישום
-      await sendEmail({
-        to: 'pninam56@gmail.com',
-        // to: email,
-        subject: 'Welcome to Our Website',
-        // text: `${role, name}, thank you for registering to LearnLink!`,
-        html: `<h1>Welcome ${role} ${name}</h1><p>Thank you for registering to LearnLink!</p>`
-
-      });
-
-      // הגורם המאפשר יצירת טוקן וקוד תגובה 201
+          const rese =  await sendEmail({
+            to: 'shlomomarachot@gmail.com'
+            ,
+            // to: email,
+            subject: 'Welcome to Our Website',
+            // text: `${role, name}, thank you for registering to LearnLink!`,
+            html: `<h1>Welcome ${role} ${name}</h1><p>Thank you for registering to classMate!</p>`
+      
+          });   
+      
       createSendToken(newUser, 201, res);
     // } \
     // else

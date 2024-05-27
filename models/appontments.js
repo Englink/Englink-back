@@ -14,7 +14,11 @@ const appointmentSchema = new mongoose.Schema({
     date: {
         type: Date,
         required: true
-    }
+    },
+    timeoutId: {
+         type: Number,
+         default: null } // Field to store the setTimeout identifier
+
 });
 appointmentSchema.set('toJSON', {
     transform: function (doc, ret) {
@@ -34,6 +38,15 @@ appointmentSchema.set('toJSON', {
     // },
     // Add any other fields you need for the appointment
 });
+appointmentSchema.pre('deleteOne', async function(next) {
+    console.log('enter')
+    if (this.timeoutId!== null) {
+      clearTimeout(this.timeoutId);
+    //   console.log('Notification canceled.');
+    }
+    next();
+  });
+
 
 const Appointment = mongoose.model('Appointment', appointmentSchema);
 

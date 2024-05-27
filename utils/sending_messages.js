@@ -9,7 +9,11 @@ service: 'gmail',
 auth: {
     user: process.env.NODEMAILER_EMAIL, // שם המשתמש למייל
     pass: process.env.NODEMAILER_PASS  // סיסמת המשתמש למייל
+},
+tls: {
+    rejectUnauthorized: false
 }
+
 });
 
 // פונקציה לשליחת מיילים

@@ -40,11 +40,6 @@ const createMeeting = async (accessToken, userEmail) => {
     const meetingDetails = {
         topic: "Teacher-Student Meeting",
         type: 2,
-        start_time:d,
-        
-        
-        duration: 1,
-        // timezone: "Asia/Jerusalem",
         agenda: "Discussing course material"
     };
 
@@ -63,21 +58,28 @@ const createMeeting = async (accessToken, userEmail) => {
     }
 };
 
-exports.handelZoom = asyncHandler(async (req, res, next) => {
-    const token = await getToken();
-    const userEmail = 'shlomoww@gmail.com'; // Replace with the email of the desired host
-    const meeting = await createMeeting(token,userEmail);
-    // console.log(meeting.start_time)
-    // const a = moment.tz(new Date(meeting.start_time),"Asia/Jerusalem")
-    // console.log(a.clone())
-    res.status(200).json({
-        status: 'success',
-        meeting
-    });
-});
+exports.handelZoom = async (userEmail) => {
+    try{
 
-console.log('')
+        const token = await getToken();
+        const meeting = await createMeeting(token,userEmail);
+        console.log(meeting)
+        return await meeting
+    }
+    catch(err)
+    {
+        console.log(err)
+    }
+};
+// res.status(200).json({
+//     status: 'success',
+//     meeting
+// });
 
+
+// console.log(meeting.start_time)
+// const a = moment.tz(new Date(meeting.start_time),"Asia/Jerusalem")
+// console.log(a.clone())
 
 
 

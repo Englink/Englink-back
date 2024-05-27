@@ -6,6 +6,8 @@ const bcrypt = require('bcryptjs')
 const userSchema = new mongoose.Schema({
     name:{
         type:String,
+        required: [true, 'Please provide name']
+
 
     }
     ,
@@ -22,7 +24,7 @@ const userSchema = new mongoose.Schema({
     password: {
         type: String,
         required: [true, 'Must be a password'],
-        // minLength: 8
+        // minLength: 8,
         // select: false
     },
     image: {
@@ -56,13 +58,15 @@ userSchema.index({ email: 1, role: 1 }, { unique: true });
 
 
 userSchema.pre('save', async function(next){
-    console.log(this.password);
+    
     if(!this.isModified('password'))
     return next()
+
     const salt = await bcrypt.genSalt(12)
     this.password = await bcrypt.hash(this.password, salt)
     next()
 })
+  
 userSchema.methods.checkPassword = async function(password,hashedPassword){
     console.log(hashedPassword)
     const checkPasword = await bcrypt.compare(password, hashedPassword)

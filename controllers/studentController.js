@@ -6,6 +6,9 @@ const User = require('../models/usersModel')
 const { default: mongoose } = require('mongoose')
 const bcrypt = require('bcrypt');
 const sendEmail = require('../utils/sending_messages');
+const cron = require('node-cron');
+const zoom = require('./zoomController')
+const dotenv = require('dotenv')
 
 
 
@@ -33,10 +36,8 @@ exports.setLesson = asyncHandler(async (req, res, next)=>{
     if (dateToSet)
         {
          const tcId = dateToSet.teacherId
-         console.log(`Teacher ID: ${tcId}`);
          const lesson = await appointment.create({ teacherId: tcId, studentId: studentId, date: dateToSet.date });
          
-         console.log(`Created lesson: ${lesson}`);
 
          // Now perform a separate query to populate the fields
          const populatedLesson = await appointment.findById(lesson._id)
@@ -47,44 +48,80 @@ exports.setLesson = asyncHandler(async (req, res, next)=>{
          .populate({
              path: 'studentId',
              select: '-password -email' // Exclude 'password' and 'email' fields from the populated studentId document
-         });
+            });
+            const now = new Date()
+            const notificationTime = new Date(dateToSet.date.getTime());
+            notificationTime.setMinutes(notificationTime.getMinutes()-2);
+            const delay = notificationTime.getTime() - now.getTime();
+            const timeoutId =   setTimeout(async () => {
+                const meeting = await zoom.handelZoom( process.env.HOSTEMAIL)
+                // console.log(meeting)
+                const joinurl = meeting.join_url
+                await sendEmail({to:'shlomomarachot@gmail.com',subject: `welcom to the lesson ${populatedLesson.studentId.name} !`,
+             html: `<p>welcome to the lesson with teacher
+             ${populatedLesson.teacherId.name}
+             ,lesson zoom link
+             <br> ${joinurl}</p>` 
+            });
+            await sendEmail({to:'shlomomarachot@gmail.com',subject: `welcom to the lesson ${populatedLesson.teacherId.name} !`,
+            html: `<p>welcome to the lesson with student
+            ${populatedLesson.studentId.name}
+            ,lesson zoom link
+            <br> ${joinurl}</p>` 
+        });
+        
+    }, delay);
+        
+        
+            await sendEmail({to:'shlomomarachot@gmail.com',subject: `new lesson shedulde`,
+        html: `<p>A new lesson shedulde added with teacher 
+         ${populatedLesson.teacherId.name} on date ${dateToSet.date.toLocaleDateString()} at hour ${dateToSet.date.toLocaleTimeString()}
+        </p>` 
+       });
+            await sendEmail({to:'shlomomarachot@gmail.com',subject: `new lesson shedulde`,
+        html: `<p>A new lesson shedulde added with student 
+         ${populatedLesson.studentId.name} on date ${dateToSet.date.toLocaleDateString()} at hour ${dateToSet.date.toLocaleTimeString()}
+        </p>` 
+       });
+            
+             dateToSet.timeoutId = timeoutId;
+            //  console.log(populatedLesson)
+             res.status(200).json({
+             
+                 status:'success',
+                 populatedLesson
+         })
+         }
+     else
+     {
+         console.log('sumthing went wrong');
+         return next(new AppError(500, 'sumthing went wrong'))
+        
+     } 
+     
+
                    
+        //  await sendEmail({
+            
+        //      // to: req.user.email, // הכתובת של התלמיד מהבקשה
+        //      to:'shlomomarachot@gmail.com',
+        //      subject: 'New Lesson Scheduled', // כותרת המייל לתלמיד
+        //      text: `A new lesson has been scheduled with the teacher on ${dateToSet.date}`, // תוכן המייל לתלמיד
+        //      html: `<h1>New Lesson Scheduled</h1><p>A new lesson has been scheduled with the teacher ${teacher.name}on ${dateToSet.date.toLocaleTimeString()}</p>` // תוכן המייל ב-HTML לתלמיד
+        //  });
+ 
          
              // שליחת מייל למורה
-        const teacher = await User.findById(tcId);
-        console.log(teacher);
-        console.log(teacher.email);
-        console.log( req.user.email);
-        await sendEmail({
-            // to: teacher.email, // כתובת המייל של המורה
-            to:'shlomoww@gmail.com',
-            subject: 'New Lesson Scheduled', // כותרת המייל למורה
-            text: `A new lesson has been scheduled for you on ${dateToSet.date}`, // תוכן המייל למורה
-            html: `<h1>New Lesson Scheduled</h1><p>A new lesson has been scheduled for you on ${dateToSet.date}with the student ${req.user.name}</p>` // תוכן המייל ב-HTML למורה
-        });
+        // const teacher = await User.findById(tcId);
+        // await sendEmail({
+        //     // to: teacher.email, // כתובת המייל של המורה
+        //     to:'shlomomarachot@gmail.com',
+        //     subject: 'New Lesson Scheduled', // כותרת המייל למורה
+        //     text: `A new lesson has been scheduled for you on ${dateToSet.date.toLocaleDateString()}at hour ${dateToSet.date}`, // תוכן המייל למורה
+        //     html: `<h1>New Lesson Scheduled</h1><p>A new lesson has been scheduled for you on ${dateToSet.date}with the student ${req.user.name}</p>` // תוכן המייל ב-HTML למורה
+        // });
 
         // שליחת מייל לתלמיד
-        await sendEmail({
-           
-            // to: req.user.email, // הכתובת של התלמיד מהבקשה
-            to:'204gps@gmail.com',
-            subject: 'New Lesson Scheduled', // כותרת המייל לתלמיד
-            text: `A new lesson has been scheduled with the teacher on ${dateToSet.date}`, // תוכן המייל לתלמיד
-            html: `<h1>New Lesson Scheduled</h1><p>A new lesson has been scheduled with the teacher ${teacher.name}on ${dateToSet.date}</p>` // תוכן המייל ב-HTML לתלמיד
-        });
-
-            res.status(200).json({
-            
-                status:'success',
-                populatedLesson
-        })
-        }
-    else
-    {
-        console.log('sumthing went wrong');
-        return next(new AppError(500, 'sumthing went wrong'))
-       
-    } 
 
 
 
@@ -94,9 +131,11 @@ exports.CanceleLesson = asyncHandler(async (req, res, next)=>
     {
 
         const lessonId =  req.params.id;
-        const cancelleLesson = await appointment.findByIdAndDelete(lessonId)
+        const cancelleLesson = await appointment.findById(lessonId);
         if(cancelleLesson)
             {
+                await cancelleLesson.deleteOne(); // This will trigger the pre-remove middleware
+
                 const availableDate = cancelleLesson.date
                 await appointment.findByIdAndDelete(lessonId)
                 if (req.user.role === 'student') {
@@ -114,7 +153,8 @@ exports.CanceleLesson = asyncHandler(async (req, res, next)=>
                         cancelleLesson
                     });
                 }
-                            }
+                
+            }
         else 
         {
             return next(new AppError(500, 'cancelled date not found'))
@@ -203,3 +243,34 @@ exports.Update_the_user_information = asyncHandler(async (req, res, next) => {
         return(next(new AppError(500,'Some error occurred during the update')))
     }
 });
+
+exports.notify = asyncHandler(async (req, res, next) => {
+
+    const now = new Date();
+    const notificationTime = new Date(now.getTime() + 10 * 60 * 1000); // 5 minutes before appointmentTime
+    const delay = notificationTime.getTime() - now.getTime();
+        // currentDate.setMinutes(currentDate.getMinutes() +10);
+        // const delay = 1000 * 60 *2
+        setTimeout(async () => {
+            await sendEmail({to:'shlomomarachot@gmail.com',subject: 'New Lesson Scheduled',
+            text: `A new lesson has been scheduled with the teacher on ${now}`, // תוכן המייל לתלמיד
+        html: `<h1>New Lesson Scheduled</h1><p>A new lesson has been scheduled with the teacher ${'teacher.name'}on ${now.toLocaleTimeString()}</p>` // תוכן המייל ב-HTML לתלמיד
+
+            });
+          }, delay);
+
+        res.status(200).json({
+        status: 'success'
+        })
+      
+    // await sendEmail({
+    //     // to: req.user.email, // הכתובת של התלמיד מהבקשה
+    //     to:'shlomomarachot@gmail.com',
+    //     subject: 'New Lesson Scheduled', // כותרת המייל לתלמיד
+    //     text: `A new lesson has been scheduled with the teacher on ${dateToSet.date}`, // תוכן המייל לתלמיד
+    //     html: `<h1>New Lesson Scheduled</h1><p>A new lesson has been scheduled with the teacher ${teacher.name}on ${dateToSet.date.toLocaleTimeString()}</p>` // תוכן המייל ב-HTML לתלמיד
+    // });
+           
+
+
+})

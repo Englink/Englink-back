@@ -10,6 +10,7 @@ const cors = require('cors')
 const cookieParser = require('cookie-parser');
 const app = express();
 const zoom = require('./controllers/zoomController')
+app.use('/uploads', express.static('uploads'));
 
 
 

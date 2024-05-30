@@ -47,7 +47,6 @@ const createSendToken =async (user, statusCode, res) => {
     }
   
     const user1 = await user.findOne({ email,role });
-    console.log(user1)
   
     if (!user1 || !await user1.checkPassword(password, user1.password)) {
       return next(new AppError(403, 'Email or password is incorrect'));
@@ -95,7 +94,6 @@ exports.register = asyncHandler(async(req, res, next) => {
           {
             return next(new AppError(403,'user already register with the same role'))
           }
-          console.log('e')
           const newUser = await user.create(req.body.userDetails)
           const rese =  await sendEmail({
             to: 'shlomomarachot@gmail.com'
@@ -106,7 +104,7 @@ exports.register = asyncHandler(async(req, res, next) => {
             html: `<h1>Welcome ${role} ${name}</h1><p>Thank you for registering to classMate!</p>`
       
           });   
-      
+      console.log('ent')
       createSendToken(newUser, 201, res);
     // } \
     // else
@@ -123,10 +121,6 @@ exports.register = asyncHandler(async(req, res, next) => {
 
 
 exports.protect = asyncHandler(async(req,res, next)=>{
-    // const token = req.headers.authorization.split(' ')[1];
-    // if(!token) return next(new AppError(403, 'Please login '))
-    // const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET)
-    // if(!decoded) return next(new AppError(403, 'Please login '))
       const token = req.cookies.userJwt
       if(!token) return next(new AppError(403, 'Please login'))
         const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET)
@@ -135,25 +129,10 @@ exports.protect = asyncHandler(async(req,res, next)=>{
           const user1 = await user.findById(id)
           if(!user1) return next(new AppError(400, 'Please register'))
           req.user= user1
-        // console.log(st)
-
-  
-//     const token = req.headers.cookie.split('=')[1]
     next()
 })
-// exports.protectTeacher = asyncHandler(async(req,res, next)=>{
-//       const token = req.cookies.teacherJwt
-//       if(!token) return next(new AppError(403, 'Please login'))
-//         const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET)
-//       if(!decoded) return next(new AppError(403, 'Please login'))
-//           const {id} = decoded
-//           const tc = await teacher.findById(id)
-//           if(!tc) return next(new AppError(400, 'Please register'))
-//           req.tc = tc
 
   
-//     next()
-// })
 exports.restrictTo = (roles) => {
   return (req, res, next) => {
     

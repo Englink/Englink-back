@@ -84,10 +84,18 @@ exports.updateTeacherAvailability = asyncHandler(async (req, res, next)=>{
     
         exports.CanceleTeacherAvailability = asyncHandler(async (req, res, next)=>
             {
-                const availabilityId =  req.params.id;
-                const cancelledDate = await availability.findByIdAndDelete(availabilityId)
-                if(!cancelledDate)
-                    return next(new AppError(500,'date not found'))
+                const cancelDates = req.body.dates
+                const tcId = req.user._id
+                const datesToRemove = userDates.map(date => new Date(date));
+                    // Remove all documents that match any of the dates in datesToRemove
+                const cancelledDate = await availability.deleteMany({      _id: tcId,
+                    date: { $in: datesToRemove } });
+
+
+                // const availabilityId =  req.params.id;
+                // const cancelledDate = await availability.findByIdAndDelete(availabilityId)
+                // if(!cancelledDate)
+                //     return next(new AppError(500,'date not found'))
                 res.status(200).json({
                     status: 'success',
                     cancelledDate

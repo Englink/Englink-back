@@ -53,7 +53,7 @@ const createMeeting = async (accessToken, userEmail) => {
         // console.log(response.data.start_time)
         return response.data;
     } catch (error) {
-      console.log(error)
+    //   console.log(error)
         throw new AppError(500, 'Error creating meeting');
     }
 };
@@ -63,7 +63,6 @@ exports.handelZoom = async (userEmail) => {
 
         const token = await getToken();
         const meeting = await createMeeting(token,userEmail);
-        console.log(meeting)
         return await meeting
     }
     catch(err)

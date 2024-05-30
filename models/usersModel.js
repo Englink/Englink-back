@@ -68,7 +68,6 @@ userSchema.pre('save', async function(next){
 })
   
 userSchema.methods.checkPassword = async function(password,hashedPassword){
-    console.log(hashedPassword)
     const checkPasword = await bcrypt.compare(password, hashedPassword)
     return checkPasword
 }

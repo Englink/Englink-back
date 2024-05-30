@@ -6,7 +6,7 @@ const teacherControllers = require('./../controllers/teacherController')
 const router = express.Router()
 const upload = require('../upload')
 
-router.route('/update-image-test').post(authControllers.protect,upload.single('image'),studentControllers.Update_the_user_information)
+// router.route('/update-image-test').post(authControllers.protect,upload.single('image'),studentControllers.Update_the_user_information)
 router.route('/').get(authControllers.protect, studentControllers.getAllstudents)
 router.route('/updating-user-details').put(authControllers.protect,upload.single('image'),studentControllers.Update_the_user_information)
 router.route('/set-lesson/:id').put(authControllers.protect,authControllers.restrictTo(['student']), studentControllers.setLesson)

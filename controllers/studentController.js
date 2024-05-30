@@ -210,8 +210,6 @@ exports.CanceleLesson = asyncHandler(async (req, res, next)=>
             fs.unlinkSync(oldImagePath);
         }
     }
-    console.log('e')
-    // Update the user's image with the new file
     if (req.file) {
         const imageUrl = `../uploads/${req.file.filename}`;
         updateFields.image = imageUrl;

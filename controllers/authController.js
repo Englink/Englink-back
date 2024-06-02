@@ -5,7 +5,7 @@ const {promisify} = require('util')
 const user = require('../models/usersModel')
 const nodemailer = require('nodemailer');
 
-const sendEmail = require('../utils/sending_messages'); // ייבוא הפונקציה לשליחת המייל
+const {sendEmail} = require('../utils/sending_messages'); // ייבוא הפונקציה לשליחת המייל
 
 const signToken = (id) => {
     return jwt.sign({id}, process.env.JWT_SECRET, {
@@ -72,50 +72,40 @@ exports.register = asyncHandler(async(req, res, next) => {
      
         
 
-
- 
-
   
-      const {email, password,role,name} = req.body.userDetails
-      // const isStudent = req.body.isStudent
-      // console.log(isStudent)
-      if (!email ||!password)
-     return next(new AppError(403,'Request details are missing'))
-    
-    // if (isStudent)
-    //   {
-        const user1 = await user.find({email})
-        if (user1.length > 1)
-          {
-
-            return next(new AppError(403,'user already register as teacher and as student'))
-          }
+  
+  
+  const {email, password,role,name} = req.body.userDetails
+  if (!email ||!password)
+    return next(new AppError(403,'Request details are missing'))
+  
+      const user1 = await user.find({email})
+      if (user1.length > 1)
+        {
+          
+          return next(new AppError(403,'user already register as teacher and as student'))
+        }
         if (user1.length == 1 && user1[0].role === role)
           {
             return next(new AppError(403,'user already register with the same role'))
           }
           const newUser = await user.create(req.body.userDetails)
-          const rese =  await sendEmail({
-            to: 'shlomomarachot@gmail.com'
-            ,
-            // to: email,
-            subject: 'Welcome to Our Website',
-            // text: `${role, name}, thank you for registering to LearnLink!`,
-            html: `<h1>Welcome ${role} ${name}</h1><p>Thank you for registering to classMate!</p>`
-      
-          });   
-      console.log('ent')
-      createSendToken(newUser, 201, res);
-    // } \
-    // else
-    // {
-    //     const tc = await teacher.findOne({email})
-    //     if (tc)
-    //     return next(new AppError(403,'teacher already in the database'))
-    //     const newTeacher = await teacher.create(req.body.userDetails);
-    //     createSendToken(newTeacher, 201 , res,isStudent)
-    //   }
+          console.log('e')
+        
+            await sendEmail({
+              to: 'shlomomarachot@gmail.com',
+              
+              subject: 'Welcome to Our Website',
+              // text: `${role, name}, thank you for registering to LearnLink!`,
+              html: `<h1>Welcome ${role} ${name}</h1><p>Thank you for registering to classMate!</p>`
+              
+            });   
+           
 
+          
+         ('ent')
+      createSendToken(newUser, 201, res);
+  
 })
 
 

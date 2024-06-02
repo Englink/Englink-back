@@ -1,6 +1,7 @@
 const express = require('express');
 // const nodemailer = require('nodemailer');
 // const bodyParser = require('body-parser');
+const crypto = require('crypto'); // Use the built-in crypto module
 
 const mongoose = require('mongoose');
 const AppError = require('./utils/AppError')
@@ -35,6 +36,7 @@ app.use('/api/students',studentRouter)
 app.use('/api/teachers',teacherRouter)
 app.get('/zoom',zoom.handelZoom)
 
+
 app.all('*', (req, res) => {
     //change
     res.status(404).json({
@@ -54,11 +56,11 @@ app.listen(port, () => {
 const connectDB = async (url)=>{
     await  mongoose.connect(url)
     console.log(`Connected to database: ${mongoose.connection.name}`);
-
-  }
-  connectDB(process.env.MONGO_COMPASS)
+    
+}
+connectDB(process.env.MONGO_COMPASS)
 .then(()=>{
-console.log("The data base has been connected");
+    console.log("The data base has been connected");
 })
 .catch(err=> console.log(err.message))
 
@@ -66,3 +68,52 @@ console.log("The data base has been connected");
 module.exports = app 
 
 
+
+
+
+
+
+
+
+
+
+// app.post('/webhook', (req, res) => {
+//     console.log('e')
+//     console.log('Headers:', req.headers);
+//     console.log('Body:', req.body);
+
+//     // Construct the message string
+//     const message = `v0:${req.headers['x-zm-request-timestamp']}:${JSON.stringify(req.body)}`;
+    
+//     // Hash the message string with your Webhook Secret Token and prepend the version semantic
+//     const hashForVerify = crypto.createHmac('sha256', process.env.ZOOM_WEBHOOK_SECRET_TOKEN)
+//                                 .update(message)
+//                                 .digest('hex');
+//     const signature = `v0=${hashForVerify}`;
+
+//     // Validate the request came from Zoom
+//     if (req.headers['x-zm-signature'] === signature) {
+//         // Handle Zoom's URL validation event
+//         if (req.body.event === 'endpoint.url_validation') {
+//             const { plainToken } = req.body.payload;
+//             const hashForValidate = crypto.createHmac('sha256', process.env.ZOOM_WEBHOOK_SECRET_TOKEN)
+//                                            .update(plainToken)
+//                                            .digest('hex');
+
+//             const response = {
+//                 plainToken: plainToken,
+//                 encryptedToken: hashForValidate
+//             };
+
+//             console.log('Validation response:', response);
+//             return res.status(200).json(response);
+//         }
+//         // Handle other events
+//         console.log('Webhook received:', req.body);
+//         return res.status(200).send('Event received');
+//     } else {
+//         // If signature verification fails
+//         console.log('Invalid signature');
+//         return res.status(401).send('Unauthorized');
+//     }
+// });

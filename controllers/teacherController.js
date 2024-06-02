@@ -148,8 +148,6 @@ exports.updateTeacherAvailability = asyncHandler(async (req, res, next)=>{
                 return next(new AppError(500, 'Cannot create review'));
             }
             
-            // Populate the created review
-            console.log('b')
             const populatedReview = await reviews.findById(review._id)
             .populate('teacherId', 'name')
             .populate('studentId', 'name');
@@ -160,31 +158,33 @@ exports.updateTeacherAvailability = asyncHandler(async (req, res, next)=>{
                 
                 
             });
+        })
+    exports.getTeacherReviews=asyncHandler(async (req, res, next)=>
+        {
+            const tcId = req.params.id; 
+            const teacherReviews = await reviews.find({teacherId:tcId})
+            .populate('teacherId', 'name')
+            .populate('studentId', 'name');
+            res.status(200).json({
+                status: 'success',
+                teacherReviews: teacherReviews
+            });
+                
+                
+        })
     
 
 
-            // const { stars, comment, lessonId } = req.body;
-            // commentDate = new Date(Date.now())
-            // const lesson= await appointment.findById(lessonId)
-            
-            
-
-            // const review  = reviews.create({comment:comment,stars:stars,commentDate:commentDate,
-            //     teacherId:lesson.teacherId,studentId:lesson.studentId})
-            
-            //     if(!review)
-            //         return next(new AppError(500, 'cannot create review'))
 
 
-            //     res.status(200).json({
-            //         status:'success',
-            // })
+        
 
-            
+    
 
 
 
-        })
+
+
             
             
     

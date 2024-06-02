@@ -3,8 +3,7 @@ const AppError = require('./../utils/AppError')
 const appointment = require('../models/appontments')
 const availability = require('../models/availability')
 const user = require('../models/usersModel')
-const moment = require('moment-timezone');
-
+const reviews = require('../models/reviews')
 
 
 
@@ -119,6 +118,73 @@ exports.updateTeacherAvailability = asyncHandler(async (req, res, next)=>{
                         lessons
                 })
             })
+
+    exports.addStudentReview=asyncHandler(async (req, res, next)=>
+        {
+            const { comment, stars, lessonId } = req.body;
+            
+            // Find the lesson to get teacherId and studentId
+            const lesson = await appointment.findById(lessonId)
+            .populate('teacherId', 'name')
+            .populate('studentId', 'name');
+            
+            if (!lesson) {
+                return next(new AppError(404, 'Lesson not found'));
+            }
+            if (!lesson.teacherId || !lesson.studentId) {
+                return next(new AppError(404, 'Teacher or student not found in lesson'));
+            }
+            
+            // Create the review
+            const review = await reviews.create({
+                comment: comment,
+                stars: stars,
+                commentDate: new Date(), // Assuming you want to set the current date
+                teacherId: lesson.teacherId._id, // Use the populated teacherId
+                studentId: lesson.studentId._id // Use the populated studentId
+            });
+            
+            if (!review) {
+                return next(new AppError(500, 'Cannot create review'));
+            }
+            
+            // Populate the created review
+            console.log('b')
+            const populatedReview = await reviews.findById(review._id)
+            .populate('teacherId', 'name')
+            .populate('studentId', 'name');
+            
+            res.status(200).json({
+                status: 'success',
+                review: populatedReview
+                
+                
+            });
+    
+
+
+            // const { stars, comment, lessonId } = req.body;
+            // commentDate = new Date(Date.now())
+            // const lesson= await appointment.findById(lessonId)
+            
+            
+
+            // const review  = reviews.create({comment:comment,stars:stars,commentDate:commentDate,
+            //     teacherId:lesson.teacherId,studentId:lesson.studentId})
+            
+            //     if(!review)
+            //         return next(new AppError(500, 'cannot create review'))
+
+
+            //     res.status(200).json({
+            //         status:'success',
+            // })
+
+            
+
+
+
+        })
             
             
     

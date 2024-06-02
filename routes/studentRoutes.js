@@ -15,6 +15,6 @@ router.route('/login').post(authControllers.login)
 router.route('/cancele-lesson/:id').delete(authControllers.protect,studentControllers.CanceleLesson)
 router.route('/get-student-lessons').get(authControllers.protect,authControllers.restrictTo(['student']),studentControllers.GetStudentsLessons)
 router.route('/validate').get(authControllers.protect,authControllers.validUser)
-router.route('/notification-test').get(studentControllers.notify)
+router.route('/test').post(studentControllers.test)
 
 module.exports = router

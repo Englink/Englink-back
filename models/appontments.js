@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const schedule = require('node-schedule');
 
 const appointmentSchema = new mongoose.Schema({
     teacherId: {
@@ -15,9 +16,10 @@ const appointmentSchema = new mongoose.Schema({
         type: Date,
         required: true
     },
-    timeoutId: {
-         type: Number,
-         default: null } // Field to store the setTimeout identifier
+    notificationJobId: {
+        type: String // Store the job ID returned by the scheduling library
+      }
+    
 
 });
 appointmentSchema.set('toJSON', {
@@ -39,12 +41,9 @@ appointmentSchema.set('toJSON', {
     // Add any other fields you need for the appointment
 });
 appointmentSchema.pre('deleteOne', async function(next) {
-    console.log('enter')
-    if (this.timeoutId!== null) {
-      clearTimeout(this.timeoutId);
-    //   console.log('Notification canceled.');
-    }
-    next();
+    if (this.notificationJobId && schedule.scheduledJobs[this.notificationJobId])
+        schedule.scheduledJobs[Appointment.notificationJobId].cancel()
+next();
   });
 
 

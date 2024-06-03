@@ -58,7 +58,7 @@ exports.setLesson = asyncHandler(async (req, res, next)=>{
     });
         lesson.notificationJobId = notificationId
         await sendNewLessonEmail(['shlomomarachot@gmail.com'],populatedLesson.teacherId.name,populatedLesson.studentId.name,dateToSet)
-    // sendFeedbackRequestEmail('student@example.com', 'Teacher Name', lessonId);
+        sendFeedbackRequestEmail('shlomomarachot@gmail.com', populatedLesson.teacherId.name, lesson._id);
 
               
         

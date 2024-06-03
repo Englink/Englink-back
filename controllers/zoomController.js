@@ -1,9 +1,6 @@
-const asyncHandler = require("express-async-handler");
 const AppError = require("./../utils/AppError");
-const jwt = require("jsonwebtoken");
 const axios = require("axios");
 const dotenv = require("dotenv");
-const moment = require('moment-timezone');
 
 dotenv.config();
 
@@ -32,11 +29,8 @@ const getToken = async () => {
 };
 
 const createMeeting = async (accessToken, userEmail) => {
-  // console.log(accessToken)
     const createMeetingUrl = `https://api.zoom.us/v2/users/${encodeURIComponent(userEmail)}/meetings`;
     const d =new Date()
-    // d.setHours(d.getHours()+1)
-    // console.log(d)
     const meetingDetails = {
         topic: "Teacher-Student Meeting",
         type: 2,
@@ -50,10 +44,8 @@ const createMeeting = async (accessToken, userEmail) => {
                 'Content-Type': 'application/json'
             }
         });
-        // console.log(response.data.start_time)
         return response.data;
     } catch (error) {
-    //   console.log(error)
         throw new AppError(500, 'Error creating meeting');
     }
 };
@@ -70,15 +62,6 @@ exports.handelZoom = async (userEmail) => {
         console.log(err)
     }
 };
-// res.status(200).json({
-//     status: 'success',
-//     meeting
-// });
-
-
-// console.log(meeting.start_time)
-// const a = moment.tz(new Date(meeting.start_time),"Asia/Jerusalem")
-// console.log(a.clone())
 
 
 
@@ -89,15 +72,3 @@ exports.handelZoom = async (userEmail) => {
 
 
 
-// const moment = require('moment-timezone');
-
-// function convertToUserTimeZone(date, timeZone) {
-//     return moment(date).tz(timeZone).format('YYYY-MM-DD HH:mm:ss');
-// }
-
-// // Example usage:
-// const eventDateUTC = new Date('2024-05-24T15:00:00Z'); // Example date in UTC
-// const userTimeZone = 'America/New_York'; // Example user time zone
-
-// const localDate = convertToUserTimeZone(eventDateUTC, userTimeZone);
-// console.log(`Event date in user's local time: ${localDate}`); // Output: 2024-05-24 11:00:00

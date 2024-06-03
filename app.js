@@ -1,41 +1,28 @@
 const express = require('express');
-// const nodemailer = require('nodemailer');
-// const bodyParser = require('body-parser');
-const crypto = require('crypto'); // Use the built-in crypto module
-
 const mongoose = require('mongoose');
-const AppError = require('./utils/AppError')
 const globalErrorHandler = require('./utils/errorHandler')
 const dotenv = require('dotenv')
 const cors = require('cors')
 const cookieParser = require('cookie-parser');
 const app = express();
 const zoom = require('./controllers/zoomController')
+const studentRouter = require('./routes/studentRoutes')
+const teacherRouter = require('./routes/teacherRouter');
+
 app.use('/uploads', express.static('uploads'));
-
-
-
 app.use(cookieParser());
-
 dotenv.config()
+
 const corsOptions = {
     origin:true,
     credentials:true
 }
-
-
 app.use(cors(corsOptions))
-const studentRouter = require('./routes/studentRoutes')
-const teacherRouter = require('./routes/teacherRouter');
-const { log } = require('util');
-
-const port = 3003;
-
 app.use(express.json())
+
 app.use('/api/students',studentRouter)
 app.use('/api/teachers',teacherRouter)
-app.get('/zoom',zoom.handelZoom)
-
+// app.get('/zoom',zoom.handelZoom)
 
 app.all('*', (req, res) => {
     //change
@@ -46,10 +33,7 @@ app.all('*', (req, res) => {
 })
 app.use(globalErrorHandler)
 
-
-
-
-
+const port = 3003;
 app.listen(port, () => {
     console.log(`Server listsning at http://localhost:${port}`);
 });
@@ -66,6 +50,17 @@ connectDB(process.env.MONGO_COMPASS)
 
 
 module.exports = app 
+
+
+
+
+
+
+
+
+
+
+
 
 
 

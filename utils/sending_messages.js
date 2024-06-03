@@ -1,5 +1,4 @@
 
-const asyncHandler = require('express-async-handler')
 
 const nodemailer = require('nodemailer');
 require('dotenv').config(); // ייבוא הספריית dotenv לקריאת המשתנים מקובץ .env
@@ -16,24 +15,21 @@ tls: {
 }
 
 });
-// asyncHandler(async (req, res, next)
-// פונקציה לשליחת מיילים
+
 async function sendEmail({ to, subject, text, html }) {
     console.log(to)
 try {
-    // הגדרת האפשרויות לשליחת המייל
     const mailOptions = {
-        from: process.env.NODEMAILER_EMAIL, // המייל ממנו ישלח המייל
-        to,                                  // כתובת המייל שאליה ישלח המייל
-        subject,                             // נושא המייל
-        text,                                // טקסט המייל
-        html                                 // HTML של המייל
+        from: process.env.NODEMAILER_EMAIL, 
+        to,                                  
+        subject,                             
+        text,                               
+        html                                 
     };
 
-    // שליחת המייל והמתנה לתגובה
     const info = await transporter.sendMail(mailOptions);
     console.log('Email sent: ', info.response);
-    return info; // החזרת המידע על המייל שנשלח
+    return info; 
 } catch (error) {
     console.error('Error sending email: ', error);
     throw new Error('Error sending email');
@@ -50,7 +46,6 @@ const sendFeedbackRequestEmail = async (studentEmail, teacherName, lessonId) => 
         <p>Thank you for your time and valuable input.</p>
     `;
 
-    // Send the email asynchronously
     try {
         await sendEmail({
             to: studentEmail,
@@ -80,35 +75,54 @@ const sendZoomLessonInventation = async (emails,studentName,teacherName,joinUrl)
         }
 
     }
-    const sendNewLessonEmail = async (emails,teacherName,studentName,dateToSet)=>
-        {
-            // console.log(emails)
-            try{
+const sendNewLessonEmail = async (emails,teacherName,studentName,dateToSet)=>
+    {
+        // console.log(emails)
+        try{
 
-                await sendEmail({to:emails,subject: `new lesson shedulde`,
-                html: `<p>A new lesson shedulde added with teacher 
-             ${teacherName} with student ${studentName} on date 
-             ${dateToSet.date.toLocaleDateString()} at hour ${dateToSet.date.toLocaleTimeString()}
-             </p>` 
-             
-            });
+            await sendEmail({to:emails,subject: `new lesson shedulde`,
+            html: `<p>A new lesson shedulde added with teacher 
+            ${teacherName} with student ${studentName} on date 
+            ${dateToSet.date.toLocaleDateString()} at hour ${dateToSet.date.toLocaleTimeString()}
+            </p>` 
+            
+        });
+    }
+    catch(err)
+    {
+        console.log(err)
+    }
+}
+const sendEmailRegisration = async (role,name)=>
+    {
+        try{
+
+            await sendEmail({
+                to: 'shlomomarachot@gmail.com',
+                subject: 'Welcome to Our Website',
+                html: `<h1>Welcome ${role} ${name}</h1><p>Thank you for registering to classMate!</p>`
+                
+              });   
+            
         }
         catch(err)
         {
             console.log(err)
         }
+        
     }
     
+    module.exports = {
+        sendEmail,
+        sendFeedbackRequestEmail,
+        sendZoomLessonInventation,
+        sendNewLessonEmail,
+        sendEmailRegisration
+      };
 
               
 
 
 
 
-module.exports = {
-    sendEmail,
-    sendFeedbackRequestEmail,
-    sendZoomLessonInventation,
-    sendNewLessonEmail
-  };
   

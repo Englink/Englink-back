@@ -3,12 +3,8 @@ const AppError = require('./../utils/AppError')
 const appointment = require('../models/appontments')
 const availability = require('../models/availability')
 const User = require('../models/usersModel')
-const { default: mongoose } = require('mongoose')
-const bcrypt = require('bcrypt');
 const { sendEmail, sendFeedbackRequestEmail,sendZoomLessonInventation,
-    sendNewLessonEmail} = require('../utils/sending_messages');
-
-const cron = require('node-cron');
+sendNewLessonEmail} = require('../utils/sending_messages');
 const zoom = require('./zoomController')
 const dotenv = require('dotenv')
 const schedule = require('node-schedule');
@@ -17,15 +13,16 @@ const fs = require('fs'); // For file system operations
 dotenv.config();
 
 
-exports.getAllstudents = asyncHandler(async (req, res, next)=>{
-   
-    const students = await User.find({role:'student'})
 
+exports.getAllstudents = asyncHandler(async (req, res, next)=>{
+    const students = await User.find({role:'student'})
     res.status(200).json({
         status:'success',
         students
 })
 })
+   
+
 
 
 
@@ -45,27 +42,26 @@ exports.setLesson = asyncHandler(async (req, res, next)=>{
          const populatedLesson = await appointment.findById(lesson._id)
          .populate({
              path: 'teacherId',
-             select: '-password -email' // Exclude 'password' and 'email' fields from the populated teacherId document
          })
          .populate({
              path: 'studentId',
-             select: '-password -email' // Exclude 'password' and 'email' fields from the populated studentId document
             });
             
-            const notificationTime = new Date(dateToSet.date.getTime());
-            notificationTime.setMinutes(notificationTime.getMinutes()-2);
-            const notificationId = schedule.scheduleJob(notificationTime,async function() {
-            const meeting = await zoom.handelZoom(process.env.HOSTEMAIL);
-            const joinurl = meeting.join_url;
-            await sendZoomLessonInventation(['shlomomarachot@gmail.com'],
-            populatedLesson.studentId.name,populatedLesson.teacherId.name,joinurl)
-        });
+        const notificationTime = new Date(dateToSet.date.getTime());
+        notificationTime.setMinutes(notificationTime.getMinutes()-2);
+
+        const notificationId = schedule.scheduleJob(notificationTime,async function() {
+        const meeting = await zoom.handelZoom(process.env.HOSTEMAIL);
+        const joinurl = meeting.join_url;
+        await sendZoomLessonInventation(['shlomomarachot@gmail.com'],
+        populatedLesson.studentId.name,populatedLesson.teacherId.name,joinurl)
+    });
         lesson.notificationJobId = notificationId
         await sendNewLessonEmail(['shlomomarachot@gmail.com'],populatedLesson.teacherId.name,populatedLesson.studentId.name,dateToSet)
+    // sendFeedbackRequestEmail('student@example.com', 'Teacher Name', lessonId);
 
               
         
-        // sendFeedbackRequestEmail('student@example.com', 'Teacher Name', lessonId);
             
       
             

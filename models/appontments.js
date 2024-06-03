@@ -29,7 +29,7 @@ appointmentSchema.set('toJSON', {
         ret.studentDetails = ret.studentId;
         delete ret.studentId;
         delete ret.teacherDetails.password;
-        delete ret.studentDetails.password;
+        delete ret.studentDetails.password
     }
        
     

@@ -36,7 +36,7 @@ try {
 }
 }
 const sendFeedbackRequestEmail = async (studentEmail, teacherName, lessonId) => {
-    const feedbackFormLink = `http://your-react-app.com/feedback-form?lessonId=${lessonId}`;
+    const feedbackFormLink = `http://localhost:5173/feedback?lessonId=${lessonId}`;
     
     const emailContent = `
         <p>Dear Student,</p>

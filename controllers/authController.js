@@ -7,8 +7,7 @@ const availability = require('../models/availability')
 const appointment = require('../models/appontments')
 const nodemailer = require('nodemailer');
 
-const {sendEmailRegisration} = require('../utils/sending_messages'); // ייבוא הפונקציה לשליחת המייל
-const { log } = require('util')
+const {sendEmailRegisration,sendEmailCreatePasswoed} = require('../utils/sending_messages'); // ייבוא הפונקציה לשליחת המייל
 
 const signToken = (id) => {
     return jwt.sign({id}, process.env.JWT_SECRET, {
@@ -119,6 +118,34 @@ const createSendToken =async (user, statusCode, res) => {
         user
       });
     }
+
+    exports.forgotPassword = asyncHandler(async(req,res, next)=>
+      {
+        const { email,role } = req.body;
+        if (!email || !role)
+          {
+            return next(new AppError(403, 'email or role are missing'))
+          }
+          const user1 = user.findOne({email:email,role:role})
+          if(!user1)
+            {
+              return next(new AppError(403, 'incorrect email'))
+            }
+           await sendEmailCreatePasswoed(email)
+           res.status(201).json({
+            status: 'success',
+          });
+        })
+    
+
+           
+          
+
+  
+
+
+
+
 
             
  exports.DeleteUser  = asyncHandler(async(req, res, next)  =>{

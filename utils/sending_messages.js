@@ -36,7 +36,7 @@ try {
 }
 }
 const sendFeedbackRequestEmail = async (studentEmail, teacherName, lessonId) => {
-    const feedbackFormLink = `http://your-react-app.com/feedback-form?lessonId=${lessonId}`;
+    const feedbackFormLink = `http://localhost:5173/feedback?lessonId=${lessonId}`;
     
     const emailContent = `
         <p>Dear Student,</p>
@@ -111,13 +111,36 @@ const sendEmailRegisration = async (role,name)=>
         }
         
     }
+    const sendEmailCreatePasswoed = async (email)=>
+        {
+            try{
+                // const newPasswordPageUrl = `http://localhost:5173/feedback?lessonId=${lessonId}`;
+
+    
+                await sendEmail({
+                    to: email,
+                    subject: 'create new password',
+                     html: `<a href="${newPasswordPageLink}"></a>`
+
+                    
+                  });   
+                
+            }
+            catch(err)
+            {
+                console.log(err)
+            }
+            
+        }
+    
     
     module.exports = {
         sendEmail,
         sendFeedbackRequestEmail,
         sendZoomLessonInventation,
         sendNewLessonEmail,
-        sendEmailRegisration
+        sendEmailRegisration,
+        sendEmailCreatePasswoed
       };
 
               

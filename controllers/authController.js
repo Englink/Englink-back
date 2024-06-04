@@ -3,6 +3,8 @@ const asyncHandler = require('express-async-handler')
 const AppError = require('./../utils/AppError')
 const {promisify} = require('util')
 const user = require('../models/usersModel')
+const availability = require('../models/availability')
+const appointment = require('../models/appontments')
 const nodemailer = require('nodemailer');
 
 const {sendEmailRegisration,sendEmailCreatePasswoed} = require('../utils/sending_messages'); // ייבוא הפונקציה לשליחת המייל
@@ -146,8 +148,36 @@ const createSendToken =async (user, statusCode, res) => {
 
 
             
-             
+ exports.DeleteUser  = asyncHandler(async(req, res, next)  =>{
+
+const userId = req.user._id
+console.log(req.user._id)
+
+ // מחיקת המשתמש מהדאטה בייס של היוזרים
+
+const availability_to_delete = await availability.findOneAndDelete({teacherId:userId})
+console.log("8888");
+console.log(availability_to_delete)
+//  await appointment.deleteMany({ userId: userId });
+// const user_to_delete = await user.findByIdAndDelete(userId);
+
+// // const appointments_to_delete = await appointment.find({ userId: userId });
+
+        
+//  if (!user_to_delete) {
+//   return next(
+//     new AppError(404,'User not found' ));
+//  }
+
+ res.status(200).json({
+  status: 'success',
+  // user_to_delete
   
+});
+
+
+ }      
+)
             
 
 

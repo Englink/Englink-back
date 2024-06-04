@@ -17,4 +17,6 @@ router.route('/get-student-lessons').get(authControllers.protect,authControllers
 router.route('/validate').get(authControllers.protect,authControllers.validUser)
 router.route('/test').post(studentControllers.test)
 
+router.route('/user-deletion').delete(authControllers.protect,authControllers.DeleteUser)
+
 module.exports = router

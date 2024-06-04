@@ -19,6 +19,8 @@ exports.updateTeacherAvailability = asyncHandler(async (req, res, next)=>{
     const tcId =  req.user._id
     const {month, year,day,hour,minute} = req.body.date;
     const availibleDate = new Date(year, month-1,day,hour,minute,0);
+        // if availibleDate.getTime() < (Date.now() + 30 * 60 * 1000)
+
     const teacherDates = await availability.find({teacherId:tcId})
 
     if (teacherDates.some(dObj=>
@@ -53,9 +55,6 @@ exports.updateTeacherAvailability = asyncHandler(async (req, res, next)=>{
     });
     
    
-    
-
-     
     exports.getTeacherAvailability = asyncHandler(async (req, res, next)=>
         {
             const tcId = req.params.id; 
@@ -158,6 +157,9 @@ exports.updateTeacherAvailability = asyncHandler(async (req, res, next)=>{
             });
                 
         })
+    
+
+     
                 
     
 

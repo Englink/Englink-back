@@ -10,6 +10,8 @@ const dotenv = require('dotenv')
 const schedule = require('node-schedule');
 const path = require('path');
 const fs = require('fs'); // For file system operations
+const { v4: uuidv4 } = require('uuid');
+
 dotenv.config();
 
 
@@ -35,59 +37,63 @@ exports.setLesson = asyncHandler(async (req, res, next)=>{
     if (dateToSet)
         {
          const tcId = dateToSet.teacherId
-         const lesson = await appointment.create({ teacherId: tcId, studentId: studentId, date: dateToSet.date });
-         
-
-         // Now perform a separate query to populate the fields
-         const populatedLesson = await appointment.findById(lesson._id)
-         .populate({
-             path: 'teacherId',
-         })
-         .populate({
-             path: 'studentId',
-            });
+         const lesson = await appointment.create({
+            teacherId: tcId,
+            studentId: studentId,
+            date: dateToSet.date,
+            notifications: { start: null, end: null }
+        });
+        
+        // Immediately populate the fields after creation
+        const populatedLesson = await appointment.findById(lesson._id)
+            .populate('teacherId')
+            .populate('studentId');
+                
             
-        const notificationTime = new Date(dateToSet.date.getTime());
-        notificationTime.setMinutes(notificationTime.getMinutes()-2);
+        const notificationZoomTime = new Date(dateToSet.date.getTime());
+        notificationZoomTime.setMinutes(notificationZoomTime.getMinutes()-2);
 
-        const notificationId = schedule.scheduleJob(notificationTime,async function() {
+        const notificationStartJobId = uuidv4();
+        const notificationEndJobId = uuidv4();  
+
+        schedule.scheduleJob(notificationStartJobId,notificationZoomTime,async function() {
         const meeting = await zoom.handelZoom(process.env.HOSTEMAIL);
         const joinurl = meeting.join_url;
         await sendZoomLessonInventation(['shlomomarachot@gmail.com'],
         populatedLesson.studentId.name,populatedLesson.teacherId.name,joinurl)
     });
-        lesson.notificationJobId = notificationId
-        await sendNewLessonEmail(['shlomomarachot@gmail.com'],populatedLesson.teacherId.name,populatedLesson.studentId.name,dateToSet)
-        sendFeedbackRequestEmail('shlomomarachot@gmail.com', populatedLesson.teacherId.name, lesson._id);
-
-              
+    const endMeetingTime = new Date(dateToSet.date.getTime());
+    endMeetingTime.setMinutes(notificationZoomTime.getMinutes()+30);
+        schedule.scheduleJob(notificationEndJobId,endMeetingTime,async function() {
+            sendFeedbackRequestEmail('shlomomarachot@gmail.com', populatedLesson.teacherId.name, lesson._id);
+        })
         
-            
+        lesson.notifications.start = notificationStartJobId
+        lesson.notifications.end = notificationEndJobId
+        lesson.save()
+        
+    
+    await sendNewLessonEmail(['shlomomarachot@gmail.com'],populatedLesson.teacherId.name,populatedLesson.studentId.name,dateToSet)
+    
+    
+    
+    
+    res.status(200).json({
+          
+        status:'success',
+        populatedLesson
+      })
+     }
+     else
+     {
+      console.log('sumthing went wrong');
+      return next(new AppError(500, 'sumthing went wrong'))
       
-            
-            
-            
-       
-       res.status(200).json({
-             
-           status:'success',
-           populatedLesson
-         })
-        }
-        else
-        {
-         console.log('sumthing went wrong');
-         return next(new AppError(500, 'sumthing went wrong'))
-         
-        } 
+     } 
 })
 
 
-
-
-
-
-
+              
 exports.CanceleLesson = asyncHandler(async (req, res, next)=>
     {
         
@@ -212,3 +218,16 @@ res.status(200).json({
 
     
 })
+        
+            
+      
+            
+            
+            
+
+
+
+
+
+
+

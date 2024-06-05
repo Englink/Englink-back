@@ -139,49 +139,60 @@ const createSendToken =async (user, statusCode, res) => {
     
 
            
-          
+      
 
+  //   exports.DeleteStudent = asyncHandler(async (req, res, next) => {
+  //         const userId = req.user._id;
+  //         const studentName = req.user.name; 
   
-
-
-
-
-
-            
- exports.DeleteUser  = asyncHandler(async(req, res, next)  =>{
-
-const userId = req.user._id
-console.log(req.user._id)
-
- // מחיקת המשתמש מהדאטה בייס של היוזרים
-
-const availability_to_delete = await availability.findOneAndDelete({teacherId:userId})
-console.log("8888");
-console.log(availability_to_delete)
-//  await appointment.deleteMany({ userId: userId });
-// const user_to_delete = await user.findByIdAndDelete(userId);
-
-// // const appointments_to_delete = await appointment.find({ userId: userId });
-
-        
-//  if (!user_to_delete) {
-//   return next(
-//     new AppError(404,'User not found' ));
-//  }
-
- res.status(200).json({
-  status: 'success',
-  // user_to_delete
+  //         // איתור כל התורים הקשורים לתלמיד
+  //         const appointmentsToDelete = await appointment.find({ studentId: userId });
+  //         console.log('Appointments to delete:', appointmentsToDelete);
   
-});
+  //         // איטרציה על כל תור שנמחק
+  //         for (const appointmentToDelete of appointmentsToDelete) {
+  //             // חילוץ כתובת הדוא"ל של המורה
+
+  //             // const teacher = await user.findById(appointmentToDelete.teacherId);
+  //             // if (!teacher) {
+  //             //     console.error('Teacher not found:', appointmentToDelete.teacherId);
+  //             //     continue;
+  //             // }
+  //             // const teacherEmail = teacher.email;
+  
+  //             // // שליחת מייל למורה
+  //             // await sendEmailDeleteStudent(teacherEmail, studentName, appointmentToDelete.date);
+  //             // console.log('Email sent to:', teacherEmail);
+  
+  //             // הוספת התאריך הפנוי למסד הנתונים
+  //             const newAvailability =  availability.create({
+  //               teacherId: appointmentToDelete.teacherId,
+  //               date: appointmentToDelete.date
+  //             });
+  
+  //             // await newAvailability.save();
+  //             console.log('New availability saved for:', appointmentToDelete.date);
+  
+  //             // מחיקת התור הנוכחי
+  //             await appointment.deleteOne({ _id: appointmentToDelete._id });
+  //             console.log('Appointment deleted:', appointmentToDelete._id);
+  //         }
+  
+  //         // מחיקת התלמיד
+  //         await user.findByIdAndDelete(userId);
+  //         console.log('User deleted:', userId);
+  
+  //         res.status(200).json({
+  //             status: 'success'
+  //         });
+         
+      
+  // });
 
 
- }      
-)
-            
 
 
- 
+
 
      
         

@@ -11,6 +11,7 @@ const schedule = require('node-schedule');
 const path = require('path');
 const fs = require('fs'); // For file system operations
 const { v4: uuidv4 } = require('uuid');
+const { json } = require('body-parser')
 
 dotenv.config();
 
@@ -34,6 +35,7 @@ exports.setLesson = asyncHandler(async (req, res, next)=>{
     const studentId = req.user._id
     const dateId = req.params.id
     const dateToSet = await availability.findByIdAndDelete(dateId)
+    // && dateToSet.date.getTime() > (Date.now() + 30 * 60 * 1000)
     if (dateToSet)
         {
          const tcId = dateToSet.teacherId
@@ -146,15 +148,21 @@ exports.CanceleLesson = asyncHandler(async (req, res, next)=>
     exports.Update_the_user_information = asyncHandler(async (req, res, next) => {
     const userId = req.user._id;
     const user = req.user
+    console.log(typeof req.body)
+    console.log('_____')
+    console.log(typeof req.body)
     const { image, email, password, name, phone, desc} = req.body;
     const updateFields = { image, email, password, name, phone, desc } 
-    console.log(updateFields)
+    // console.log(req.body)
+    // console.log(updateFields)
 
     for (const key in updateFields) {
-                if (!updateFields[key]|| updateFields[key].trim() === "") {
-                    delete updateFields[key];
-                }
+        console.log(typeof updateFields[key])
+        if (!updateFields[key]|| updateFields[key].trim() === "") {
+            delete updateFields[key];
+        }
     }
+    // console.log(updateFields)
     
     if (updateFields.hasOwnProperty('password'))
          {
@@ -172,7 +180,8 @@ exports.CanceleLesson = asyncHandler(async (req, res, next)=>
         
         delete updateFields.password;
     }
-    if (user.image) {
+    if (user.image && req.file) {
+        console.log('e')
         const oldImagePath = path.join('../uploads', user.image);
         if (fs.existsSync(oldImagePath)) {
             fs.unlinkSync(oldImagePath);

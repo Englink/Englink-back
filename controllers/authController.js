@@ -133,7 +133,7 @@ const createSendToken =async (user, statusCode, res) => {
            res.status(201).json({
             status: 'success',
           });
-        })
+      })
     
 
            

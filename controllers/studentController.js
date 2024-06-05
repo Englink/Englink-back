@@ -3,8 +3,8 @@ const AppError = require('./../utils/AppError')
 const appointment = require('../models/appontments')
 const availability = require('../models/availability')
 const User = require('../models/usersModel')
-const { sendEmail, sendFeedbackRequestEmail,sendZoomLessonInventation,
-sendNewLessonEmail} = require('../utils/sending_messages');
+const {  sendFeedbackRequestEmail,sendZoomLessonInventation,
+sendNewLessonEmail,sendEmailDeleteStudent} = require('../utils/sending_messages');
 const zoom = require('./zoomController')
 const dotenv = require('dotenv')
 const schedule = require('node-schedule');
@@ -220,7 +220,77 @@ res.status(200).json({
 })
         
             
+          
       
+
+exports.DeleteStudent = asyncHandler(async (req, res, next) => {
+    const userId = req.user._id;
+    const studentName = req.user.name; 
+    const role = req.user.role
+
+    // איתור כל התורים הקשורים לתלמיד
+    const appointmentsToDelete = await appointment.find({ studentId: userId });
+    console.log('Appointments to delete:', appointmentsToDelete);
+
+    // איטרציה על כל תור שנמחק
+    for (const appointmentToDelete of appointmentsToDelete) {
+        // חילוץ כתובת הדוא"ל של המורה
+
+        const teacher = await User.findById(appointmentToDelete.teacherId);
+        if (!teacher) {
+            console.error('Teacher not found:', appointmentToDelete.teacherId);
+            continue;
+        }
+        const teacherEmail = teacher.email;
+
+        // // שליחת מייל למורה
+        await sendEmailDeleteStudent(teacherEmail, studentName, appointmentToDelete.date,role);
+        // console.log('Email sent to:', teacherEmail);
+
+        // הוספת התאריך הפנוי למסד הנתונים
+        const newAvailability =  availability.create({
+          teacherId: appointmentToDelete.teacherId,
+          date: appointmentToDelete.date
+        });
+
+        // await newAvailability.save();
+        console.log('New availability saved for:', appointmentToDelete.date);
+
+        // מחיקת התור הנוכחי
+        await appointment.deleteOne({ _id: appointmentToDelete._id });
+        console.log('Appointment deleted:', appointmentToDelete._id);
+    }
+
+    // מחיקת התלמיד
+    await User.findByIdAndDelete(userId);
+    console.log('User deleted:', userId);
+
+    res.status(200).json({
+        status: 'success'
+    });
+   
+
+});
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
             
             
             

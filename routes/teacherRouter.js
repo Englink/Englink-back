@@ -19,5 +19,7 @@ router.route('/get-teacher-lessons').get(authControllers.protect,authControllers
 router.route('/updating-user-details').put(authControllers.protect,upload.single('image'),studentControllers.Update_the_user_information)
 router.route('/add-review').post(teacherControllers.addStudentReview)
 router.route('/get-teacher-reviews/:id').get(teacherControllers.getTeacherReviews)
+// router.route('/deletion').delete(authControllers.protect,teacherControllers.DeleteTeacher)
+
 
 module.exports = router

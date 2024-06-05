@@ -133,6 +133,29 @@ const sendEmailRegisration = async (role,name)=>
             
         }
     
+
+    const sendEmailDeleteStudent = async (Email,name,date,role)=>{
+        try{
+        await sendEmail({
+            to: Email,
+            subject: 'Your class has been cancelled',
+             html: `<h1></h1><p>The ${role} ${name} canceled the lesson on the date${date}</p>`
+
+            
+          });   
+        
+    }
+    catch(err)
+    {
+        console.log(err)
+    }
+
+    }
+
+
+
+
+
     
     module.exports = {
         sendEmail,
@@ -140,7 +163,8 @@ const sendEmailRegisration = async (role,name)=>
         sendZoomLessonInventation,
         sendNewLessonEmail,
         sendEmailRegisration,
-        sendEmailCreatePasswoed
+        sendEmailCreatePasswoed,
+        sendEmailDeleteStudent
       };
 
               

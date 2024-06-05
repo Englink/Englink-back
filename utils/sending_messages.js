@@ -1,14 +1,13 @@
 
 
 const nodemailer = require('nodemailer');
-require('dotenv').config(); // ייבוא הספריית dotenv לקריאת המשתנים מקובץ .env
+require('dotenv').config(); 
 
-// הגדרת הטרנספורטר לשליחת מיילים
 const transporter = nodemailer.createTransport({
 service: 'gmail',
 auth: {
-    user: process.env.NODEMAILER_EMAIL, // שם המשתמש למייל
-    pass: process.env.NODEMAILER_PASS  // סיסמת המשתמש למייל
+    user: process.env.NODEMAILER_EMAIL, 
+    pass: process.env.NODEMAILER_PASS  
 },
 tls: {
     rejectUnauthorized: false

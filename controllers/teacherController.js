@@ -4,6 +4,7 @@ const appointment = require('../models/appontments')
 const availability = require('../models/availability')
 const user = require('../models/usersModel')
 const reviews = require('../models/reviews')
+const { sendEmailDeleteStudent} = require('../utils/sending_messages');
 
 exports.getAllteachers = asyncHandler(async (req, res, next)=>{
    
@@ -159,7 +160,49 @@ exports.updateTeacherAvailability = asyncHandler(async (req, res, next)=>{
         })
     
 
-     
+exports.DeleteTeacher = asyncHandler(async (req, res, next) =>{
+    const userId = req.user._id 
+    const teacherName = req.user.name
+    const role = req.user.role
+
+    const appointmentsToDelete = await appointment.find({ teacherId: userId });
+    console.log('Appointments to delete:', appointmentsToDelete);
+
+      // איטרציה על כל תור שנמחק
+      for (const appointmentToDelete of appointmentsToDelete) {
+        // חילוץ כתובת הדוא"ל של התלמיד
+
+        const student = await user.findById(appointmentToDelete.studentId);
+        if (!student) {
+            console.error('Teacher not found:', appointmentToDelete.studentId);
+            continue;
+        }
+        const studentEmail = student.email;
+
+        // // שליחת מייל לתלמיד
+        // await sendEmailDeleteStudent(studentEmail, teacherName, appointmentToDelete.date,role);
+        // console.log('Email sent to:', studentEmail);
+
+        
+    
+        // מחיקת התור הנוכחי
+        await appointment.deleteOne({ _id: appointmentToDelete._id });
+        console.log('Appointment deleted:', appointmentToDelete._id);
+    }
+
+    // מחיקת המורה
+    await user.findByIdAndDelete(userId);
+    console.log('User deleted:', userId);
+
+    res.status(200).json({
+        status: 'success'
+    });
+   
+
+});
+
+
+
                 
     
 

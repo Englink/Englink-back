@@ -30,6 +30,9 @@ const userSchema = new mongoose.Schema({
     image: {
         type: String
     },
+    price: {
+        type: Number
+    },
     gender: {
         type: String,
         // required: [true, 'Please provide a gender'],

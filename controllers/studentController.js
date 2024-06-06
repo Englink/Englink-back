@@ -64,15 +64,15 @@ exports.setLesson = asyncHandler(async (req, res, next)=>{
         await sendZoomLessonInventation(['shlomomarachot@gmail.com'],
         populatedLesson.studentId.name,populatedLesson.teacherId.name,joinurl)
     });
-    const endMeetingTime = new Date(dateToSet.date.getTime());
-    endMeetingTime.setMinutes(notificationZoomTime.getMinutes()+30);
-        schedule.scheduleJob(notificationEndJobId,endMeetingTime,async function() {
+    // const endMeetingTime = new Date(dateToSet.date.getTime());
+    // endMeetingTime.setMinutes(notificationZoomTime.getMinutes()+30);
+        // schedule.scheduleJob(notificationEndJobId,endMeetingTime,async function() {
+        // })
             sendFeedbackRequestEmail('shlomomarachot@gmail.com', populatedLesson.teacherId.name, lesson._id);
-        })
         
-        lesson.notifications.start = notificationStartJobId
-        lesson.notifications.end = notificationEndJobId
-        lesson.save()
+        // lesson.notifications.start = notificationStartJobId
+        // lesson.notifications.end = notificationEndJobId
+        // lesson.save()
         
     
     await sendNewLessonEmail(['shlomomarachot@gmail.com'],populatedLesson.teacherId.name,populatedLesson.studentId.name,dateToSet)

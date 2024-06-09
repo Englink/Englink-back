@@ -151,8 +151,8 @@ exports.CanceleLesson = asyncHandler(async (req, res, next)=>
     console.log(typeof req.body)
     console.log('_____')
     console.log(typeof req.body)
-    const { image, email, password, name, phone, desc} = req.body;
-    const updateFields = { image, email, password, name, phone, desc } 
+    const { image, email, password, name, phone, desc,price} = req.body;
+    const updateFields = { image, email, password, name, phone, desc,price } 
     // console.log(req.body)
     // console.log(updateFields)
 

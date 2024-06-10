@@ -28,6 +28,7 @@ exports.getAllstudents = asyncHandler(async (req, res, next)=>{
 
 
 
+// && dateToSet.date.getTime() > (Date.now() + 30 * 60 * 1000)
 
 
 exports.setLesson = asyncHandler(async (req, res, next)=>{
@@ -35,7 +36,6 @@ exports.setLesson = asyncHandler(async (req, res, next)=>{
     const studentId = req.user._id
     const dateId = req.params.id
     const dateToSet = await availability.findByIdAndDelete(dateId)
-    // && dateToSet.date.getTime() > (Date.now() + 30 * 60 * 1000)
     if (dateToSet)
         {
          const tcId = dateToSet.teacherId

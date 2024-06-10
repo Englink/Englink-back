@@ -76,7 +76,7 @@ exports.updateTeacherAvailability = asyncHandler(async (req, res, next)=>{
     
         exports.CanceleTeacherAvailability = asyncHandler(async (req, res, next)=>
             {
-                const cancelDates = req.body.dates
+                const cancelDates = req.body.datess
                 const tcId = req.user._id
                 
                 const datesToRemove = cancelDates.map(date => new Date(date));

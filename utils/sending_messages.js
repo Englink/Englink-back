@@ -16,7 +16,6 @@ tls: {
 });
 
 async function sendEmail({ to, subject, text, html }) {
-    console.log(to)
 try {
     const mailOptions = {
         from: process.env.NODEMAILER_EMAIL, 

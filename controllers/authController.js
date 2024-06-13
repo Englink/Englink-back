@@ -9,14 +9,14 @@ const nodemailer = require('nodemailer');
 
 const {sendEmailRegisration,sendEmailCreatePasswoed} = require('../utils/sending_messages'); // ייבוא הפונקציה לשליחת המייל
 
-const signToken = (id) => {
+const signToken = (id,expirationTime) => {
     return jwt.sign({id}, process.env.JWT_SECRET, {
-      expiresIn: "3d"
+      expiresIn: expirationTime
     });
   };
   
 const createSendToken =async (user, statusCode, res) => {
-    const token = signToken(user._id);
+    const token = signToken(user._id,'3d');
     const cookieOptions = {
       expires: new Date(
         Date.now() + process.env.JWT_EXPIRES_IN * 24 * 60 * 60 * 1000
@@ -126,68 +126,59 @@ const createSendToken =async (user, statusCode, res) => {
           {
             return next(new AppError(403, 'email or role are missing'))
           }
-          const user1 = user.findOne({email:email,role:role})
-          if(!user1)
-            {
-              return next(new AppError(403, 'incorrect email'))
-            }
-           await sendEmailCreatePasswoed(email)
+          const user1 =await user.findOne({email:email,role:role})
+
+        if(!user1)
+          {
+            return next(new AppError(403, 'incorrect email'))
+          }
+          // console.log(user1)
+          
+          const token = signToken(user1._id,'3h')
+          console.log(token)
+          await sendEmailCreatePasswoed('shlomomarachot@gmail.com',token)
            res.status(201).json({
             status: 'success',
           });
       })
+
+
+    exports.resetPassword = asyncHandler(async(req,res, next)=>
+      {
+        const { token } = req.params;
+        const { password } = req.body;
+        if(!password)
+          return next(new AppError(403, 'please specify password'))
+       
+          const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET)
+          console.log(decoded)
+          const {id} = decoded
+          const user1 =await user.findById(id)
+          if(!user1)
+            {
+              return next(new AppError(403, 'incorrect email'))
+            }
+
+            // if it is the same password
+          if (await user1.checkPassword(password, user1.password))
+            {
+              return next(new AppError(403, 'password already used in the past , change it'))
+            } 
+            user1.password = password
+           await user1.save()
+           res.status(201).json({
+            status: 'success',
+          });
+      })
+
+
+
+
     
 
            
       
 
-  //   exports.DeleteStudent = asyncHandler(async (req, res, next) => {
-  //         const userId = req.user._id;
-  //         const studentName = req.user.name; 
-  
-  //         // איתור כל התורים הקשורים לתלמיד
-  //         const appointmentsToDelete = await appointment.find({ studentId: userId });
-  //         console.log('Appointments to delete:', appointmentsToDelete);
-  
-  //         // איטרציה על כל תור שנמחק
-  //         for (const appointmentToDelete of appointmentsToDelete) {
-  //             // חילוץ כתובת הדוא"ל של המורה
-
-  //             // const teacher = await user.findById(appointmentToDelete.teacherId);
-  //             // if (!teacher) {
-  //             //     console.error('Teacher not found:', appointmentToDelete.teacherId);
-  //             //     continue;
-  //             // }
-  //             // const teacherEmail = teacher.email;
-  
-  //             // // שליחת מייל למורה
-  //             // await sendEmailDeleteStudent(teacherEmail, studentName, appointmentToDelete.date);
-  //             // console.log('Email sent to:', teacherEmail);
-  
-  //             // הוספת התאריך הפנוי למסד הנתונים
-  //             const newAvailability =  availability.create({
-  //               teacherId: appointmentToDelete.teacherId,
-  //               date: appointmentToDelete.date
-  //             });
-  
-  //             // await newAvailability.save();
-  //             console.log('New availability saved for:', appointmentToDelete.date);
-  
-  //             // מחיקת התור הנוכחי
-  //             await appointment.deleteOne({ _id: appointmentToDelete._id });
-  //             console.log('Appointment deleted:', appointmentToDelete._id);
-  //         }
-  
-  //         // מחיקת התלמיד
-  //         await user.findByIdAndDelete(userId);
-  //         console.log('User deleted:', userId);
-  
-  //         res.status(200).json({
-  //             status: 'success'
-  //         });
-         
-      
-  // });
 
 
 

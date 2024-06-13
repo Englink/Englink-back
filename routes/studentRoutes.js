@@ -14,13 +14,15 @@ router.route('/login').post(authControllers.login)
 router.route('/cancele-lesson/:id').delete(authControllers.protect,studentControllers.CanceleLesson)
 router.route('/get-student-lessons').get(authControllers.protect,authControllers.restrictTo(['student']),studentControllers.GetStudentsLessons)
 router.route('/validate').get(authControllers.protect,authControllers.validUser)
-
 router.route('/deletion').delete(authControllers.protect,studentControllers.DeleteStudent)
+router.route('/forgot-password').post(authControllers.forgotPassword)
+router.route('/reset-password/:token').post(authControllers.resetPassword)
+
 // router.route('/test').post(studentControllers.test)
-router.route('/update-image-test').post(upload.array('files',10),(req,res)=>
-{
-    res.send('Files uploaded successfully');
+// router.route('/update-image-test').post(upload.array('files',10),(req,res)=>
+// {
+//     res.send('Files uploaded successfully');
  
-})
+// })
 
 module.exports = router

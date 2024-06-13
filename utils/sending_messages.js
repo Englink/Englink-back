@@ -109,16 +109,39 @@ const sendEmailRegisration = async (role,name)=>
         }
         
     }
-    const sendEmailCreatePasswoed = async (email)=>
+    
+    const sendEmailDeleteStudent = async (Email,name,date,role)=>{
+        try{
+        await sendEmail({
+            to: Email,
+            subject: 'Your class has been cancelled',
+             html: `<h1></h1><p>The ${role} ${name} canceled the lesson on the date${date}</p>`
+             
+             
+             });   
+             
+             }
+             catch(err)
+             {
+                 console.log(err)
+                 }
+                 
+    }
+    
+    
+    
+    
+    const sendEmailCreatePasswoed = async (email,token)=>
         {
             try{
-                // const newPasswordPageUrl = `http://localhost:5173/feedback?lessonId=${lessonId}`;
+                const newPasswordPageUrl = `http://localhost:5173/reset-password?${token}`;
 
     
                 await sendEmail({
                     to: email,
                     subject: 'create new password',
-                     html: `<a href="${newPasswordPageLink}"></a>`
+                    
+                    html: `<p>Click this link to reset your password: <a href="${newPasswordPageUrl}">Reset Password</a></p>`,
 
                     
                   });   
@@ -131,29 +154,7 @@ const sendEmailRegisration = async (role,name)=>
             
         }
     
-
-    const sendEmailDeleteStudent = async (Email,name,date,role)=>{
-        try{
-        await sendEmail({
-            to: Email,
-            subject: 'Your class has been cancelled',
-             html: `<h1></h1><p>The ${role} ${name} canceled the lesson on the date${date}</p>`
-
-            
-          });   
-        
-    }
-    catch(err)
-    {
-        console.log(err)
-    }
-
-    }
-
-
-
-
-
+    
     
     module.exports = {
         sendEmail,

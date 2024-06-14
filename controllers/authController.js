@@ -135,8 +135,7 @@ const createSendToken =async (user, statusCode, res) => {
           // console.log(user1)
           
           const token = signToken(user1._id,'3h')
-          console.log(token)
-          await sendEmailCreatePasswoed('shlomomarachot@gmail.com',token)
+          await sendEmailCreatePasswoed(process.env.FORGET_PASS_EMAIL,token)
            res.status(201).json({
             status: 'success',
           });
@@ -151,7 +150,6 @@ const createSendToken =async (user, statusCode, res) => {
           return next(new AppError(403, 'please specify password'))
        
           const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET)
-          console.log(decoded)
           const {id} = decoded
           const user1 =await user.findById(id)
           if(!user1)
@@ -159,15 +157,11 @@ const createSendToken =async (user, statusCode, res) => {
               return next(new AppError(403, 'incorrect email'))
             }
 
-            // if it is the same password
-          if (await user1.checkPassword(password, user1.password))
-            {
-              return next(new AppError(403, 'password already used in the past , change it'))
-            } 
             user1.password = password
            await user1.save()
            res.status(201).json({
             status: 'success',
+            message:'password reset succecfully'
           });
       })
 

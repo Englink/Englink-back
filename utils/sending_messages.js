@@ -134,7 +134,7 @@ const sendEmailRegisration = async (role,name)=>
     const sendEmailCreatePasswoed = async (email,token)=>
         {
             try{
-                const newPasswordPageUrl = `http://localhost:5173/reset-password?${token}`;
+                const newPasswordPageUrl = `http://localhost:5173/reset-password/${token}`;
 
     
                 await sendEmail({

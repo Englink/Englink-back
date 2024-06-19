@@ -92,14 +92,30 @@ exports.updateTeacherAvailability = asyncHandler(async (req, res, next)=>{
         exports.GetTeacherLessons = asyncHandler(async (req, res, next)=>
             {
                 const tcId = req.user._id
-                const lessons = await appointment.find({teacherId:tcId})
-                .populate({
-                    path: 'teacherId'
-                })
-                .populate({
-                    path: 'studentId'
-                });
-                                
+           
+                // const appointments1 = await appointment.find({}).select('studentId -_id');
+                // const studentIdsInAppointments = new Set(appointments1.map(app => app.studentId.toString()));
+                // const students1 = await user.find({ role: 'student' }).select('_id');
+                // const studentIdsInUsers = new Set(students1.map(student => student._id.toString()));
+                // const studentsWithoutUser = [...studentIdsInAppointments].filter(studentId => !studentIdsInUsers.has(studentId));
+                // await appointment.deleteMany({ studentId: { $in: studentsWithoutUser  } });
+
+                // console.log(studentsWithoutUser)
+        // Step 1: Retrieve appointments for the given teacherId
+        const appointments = await appointment.find({ teacherId: tcId }).select('studentId -_id');
+        
+        // Step 2: Extract unique student IDs from the appointments
+        const studentIdsInAppointments = [...new Set(appointments.map(app => app.studentId.toString()))];
+
+        // Step 3: Retrieve valid student IDs from the users collection
+        const validStudents = await user.find({ _id: { $in: studentIdsInAppointments }, role: 'student' }).select('_id');
+        const validStudentIds = new Set(validStudents.map(student => student._id.toString()));
+
+        // Step 4: Retrieve and populate appointments conditionally
+        const lessons= await appointment.find({ teacherId: tcId, studentId: { $in: [...validStudentIds] } })
+            .populate('teacherId')
+            .populate('studentId');
+               
                     res.status(200).json({
                         status:'success',
                         lessons

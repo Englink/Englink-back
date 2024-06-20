@@ -4,7 +4,7 @@ const appointment = require('../models/appontments')
 const availability = require('../models/availability')
 const User = require('../models/usersModel')
 const {  sendFeedbackRequestEmail,sendZoomLessonInventation,
-sendNewLessonEmail,sendEmailDeleteStudent} = require('../utils/sending_messages');
+sendNewLessonEmail,sendEmailDeleteStudent,sendEmailCanceleLesson} = require('../utils/sending_messages');
 const zoom = require('./zoomController')
 const dotenv = require('dotenv')
 const schedule = require('node-schedule');
@@ -12,6 +12,8 @@ const path = require('path');
 const fs = require('fs'); // For file system operations
 const { v4: uuidv4 } = require('uuid');
 const { json } = require('body-parser')
+const e = require('cors')
+const { log } = require('console')
 
 dotenv.config();
 
@@ -33,18 +35,23 @@ exports.getAllstudents = asyncHandler(async (req, res, next)=>{
 
 exports.setLesson = asyncHandler(async (req, res, next)=>{
    
+    const studentEmail = req.user.email
     const studentId = req.user._id
     const dateId = req.params.id
     const dateToSet = await availability.findByIdAndDelete(dateId)
     if (dateToSet)
         {
          const tcId = dateToSet.teacherId
+         console.log(tcId)
          const lesson = await appointment.create({
             teacherId: tcId,
             studentId: studentId,
             date: dateToSet.date,
             notifications: { start: null, end: null }
         });
+        const teacher = await User.findById(tcId)
+        const teacherEmail = teacher.email
+        
         
         // Immediately populate the fields after creation
         const populatedLesson = await appointment.findById(lesson._id)
@@ -62,21 +69,21 @@ exports.setLesson = asyncHandler(async (req, res, next)=>{
         schedule.scheduleJob(notificationStartJobId,notificationZoomTime,async function() {
         const meeting = await zoom.handelZoom(process.env.HOSTEMAIL);
         const joinurl = meeting.join_url;
-        await sendZoomLessonInventation(['shlomomarachot@gmail.com'],
+        await sendZoomLessonInventation([studentEmail,teacherEmail],
         populatedLesson.studentId.name,populatedLesson.teacherId.name,joinurl)
     });
-    // const endMeetingTime = new Date(dateToSet.date.getTime());
-    // endMeetingTime.setMinutes(notificationZoomTime.getMinutes()+30);
-        // schedule.scheduleJob(notificationEndJobId,endMeetingTime,async function() {
-        // })
-            sendFeedbackRequestEmail('shlomomarachot@gmail.com', populatedLesson.teacherId.name, lesson._id);
+    const endMeetingTime = new Date(dateToSet.date.getTime());
+    endMeetingTime.setMinutes(notificationZoomTime.getMinutes()+30);
+        schedule.scheduleJob(notificationEndJobId,endMeetingTime,async function() {
+        })
+            sendFeedbackRequestEmail(studentEmail, populatedLesson.teacherId.name, lesson._id);
         
-        // lesson.notifications.start = notificationStartJobId
-        // lesson.notifications.end = notificationEndJobId
-        // lesson.save()
+        lesson.notifications.start = notificationStartJobId
+        lesson.notifications.end = notificationEndJobId
+        lesson.save()
         
     
-    await sendNewLessonEmail(['shlomomarachot@gmail.com'],populatedLesson.teacherId.name,populatedLesson.studentId.name,dateToSet)
+    await sendNewLessonEmail([studentEmail,teacherEmail],populatedLesson.teacherId.name,populatedLesson.studentId.name,dateToSet)
     
     
     
@@ -101,7 +108,13 @@ exports.CanceleLesson = asyncHandler(async (req, res, next)=>
     {
         
         const lessonId =  req.params.id;
+        const userName = req.user.name; 
+        const userEmail = req.user.email
+        let otherEmail = ""
+        let otherName = ""
         const cancelleLesson = await appointment.findById(lessonId);
+        
+        
         if(cancelleLesson)
             {
                 await cancelleLesson.deleteOne(); // This will trigger the pre-remove middleware
@@ -111,11 +124,25 @@ exports.CanceleLesson = asyncHandler(async (req, res, next)=>
                     cancelleLesson
                 };
                 
+                // let otherEmail, otherName, role;
                 if (req.user.role === 'student') {
                     const newAvailableDate = await availability.create({ date: availableDate, teacherId: cancelleLesson.teacherId });
                     response.newAvailableDate = newAvailableDate;
+                    const teacher = await User.findById(cancelleLesson.teacherId);
+                    otherEmail = teacher.email
+                    otherName = teacher.name
+                    console.log(otherEmail);
+                    console.log(otherName);
+                    // role = 'student';
+
                 }
-                
+                else{const student = await User.findById(cancelleLesson.studentId);
+                    otherEmail = student.email
+                    otherName = student.name
+                    //  role = 'teacher';
+                }
+                await sendEmailCanceleLesson(userEmail,userName,otherEmail,otherName,cancelleLesson.date,role);
+            
                 res.status(200).json(response);
                                 
             }

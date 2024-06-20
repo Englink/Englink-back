@@ -171,7 +171,6 @@ exports.updateTeacherAvailability = asyncHandler(async (req, res, next)=>{
     exports.getTeacherReviews=asyncHandler(async (req, res, next)=>
         {
             const tcId = req.params.id; 
-            console.log(req.params)
             const teacherReviews = await reviews.find({teacherId:tcId})
             .populate('teacherId', 'name')
             .populate('studentId', 'name image');

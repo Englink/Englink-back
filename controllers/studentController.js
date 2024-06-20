@@ -55,9 +55,10 @@ exports.setLesson = asyncHandler(async (req, res, next)=>{
         const notificationZoomTime = new Date(dateToSet.date.getTime());
         notificationZoomTime.setMinutes(notificationZoomTime.getMinutes()-2);
 
+        console.log(notificationZoomTime.toLocaleDateString())
+        console.log(notificationZoomTime.toLocaleTimeString())
         const notificationStartJobId = uuidv4();
         const notificationEndJobId = uuidv4();  
-
         schedule.scheduleJob(notificationStartJobId,notificationZoomTime,async function() {
         const meeting = await zoom.handelZoom(process.env.HOSTEMAIL);
         const joinurl = meeting.join_url;

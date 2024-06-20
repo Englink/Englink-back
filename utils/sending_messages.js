@@ -91,14 +91,14 @@ const sendNewLessonEmail = async (emails,teacherName,studentName,dateToSet)=>
         console.log(err)
     }
 }
-const sendEmailRegisration = async (role,name)=>
+const sendEmailRegisration = async (email,role,name)=>
     {
         try{
 
             await sendEmail({
-                to: 'shlomomarachot@gmail.com',
+                to: email,
                 subject: 'Welcome to Our Website',
-                html: `<h1>Welcome ${role} ${name}</h1><p>Thank you for registering to classMate!</p>`
+                html: `<h1>Welcome ${role} ${name}</h1><p>Thank you for registering to Englink!</p>`
                 
               });   
             
@@ -129,7 +129,33 @@ const sendEmailRegisration = async (role,name)=>
     }
     
     
-    
+    const sendEmailCanceleLesson = async (userEmail,userName,otherEmail,otherName,date,role)=>{
+        try{
+            await sendEmail({
+                to: userEmail,
+                subject: 'Your lesson has been cancelled',
+                 html: `<h1>In honor of ${userName}</h1><p>The ${otherName} canceled the lesson on the date${date}</p>`
+                 
+                 });   
+
+                 await sendEmail({
+                    to: otherEmail,
+                    subject: 'Your lesson has been cancelled',
+                    html: `<h1>In honor of${role}${otherName}</h1><p>The ${role} ${userName} canceled the lesson on the date${date}</p>`
+                     
+                     });   
+                 
+                 }
+                 catch(err)
+                 {
+                     console.log(err)
+                     }
+                     
+
+    }
+
+
+
     
     const sendEmailCreatePasswoed = async (email,token)=>
         {
@@ -163,7 +189,8 @@ const sendEmailRegisration = async (role,name)=>
         sendNewLessonEmail,
         sendEmailRegisration,
         sendEmailCreatePasswoed,
-        sendEmailDeleteStudent
+        sendEmailDeleteStudent,
+        sendEmailCanceleLesson
       };
 
               

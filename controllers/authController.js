@@ -48,8 +48,8 @@ const createSendToken =async (user, statusCode, res) => {
       return next(new AppError(403, 'Role is missing'));
     }
   
+    console.log(role)
     const user1 = await user.findOne({ email,role });
-  
     if (!user1 || !await user1.checkPassword(password, user1.password)) {
       return next(new AppError(403, 'Email or password is incorrect'));
     }

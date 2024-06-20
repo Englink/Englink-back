@@ -8,6 +8,7 @@ const router = express.Router()
 
 
 
+router.route('/get-teacher-reviews/:id').get(teacherControllers.getTeacherReviews)
 router.route('/').get(authControllers.protect,authControllers.restrictTo(['student']), teacherControllers.getAllteachers)
 router.route('/register').post(authControllers.register)
 router.route('/login').post(authControllers.login)
@@ -17,7 +18,6 @@ router.route('/cancele-availability').post(authControllers.protect,authControlle
 router.route('/get-teacher-lessons').get(authControllers.protect,authControllers.restrictTo(['teacher']),teacherControllers.GetTeacherLessons)
 router.route('/updating-user-details').put(authControllers.protect,upload.single('image'),studentControllers.Update_the_user_information)
 router.route('/add-review').post(teacherControllers.addStudentReview)
-router.route('/get-teacher-reviews/:id').get(teacherControllers.getTeacherReviews)
 // router.route('/deletion').delete(authControllers.protect,teacherControllers.DeleteTeacher)
 
 

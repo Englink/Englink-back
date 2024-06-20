@@ -10,7 +10,7 @@ const studentRouter = require('./routes/studentRoutes')
 const teacherRouter = require('./routes/teacherRouter');
 
 const fs = require('fs');
-app.use(express.urlencoded({ extended: true }));
+// app.use(express.urlencoded({ extended: true }));
 if (!fs.existsSync('uploads')) {
     fs.mkdirSync('uploads', { recursive: true });
 }

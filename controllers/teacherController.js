@@ -19,9 +19,10 @@ exports.updateTeacherAvailability = asyncHandler(async (req, res, next)=>{
 
     const tcId =  req.user._id
     const {month, year,day,hour,minute} = req.body.date;
-    const availibleDate = new Date(year, month-1,day,hour,minute,0);
+    const availibleDate = new Date(year, month,day,hour,minute,0);
+    console.log(availibleDate.toLocaleDateString())
+    console.log(availibleDate.toLocaleTimeString())
         // if availibleDate.getTime() < (Date.now() + 30 * 60 * 1000)
-
     const teacherDates = await availability.find({teacherId:tcId})
 
     if (teacherDates.some(dObj=>
@@ -32,11 +33,15 @@ exports.updateTeacherAvailability = asyncHandler(async (req, res, next)=>{
             return next(new AppError(500, 'cannot set availability in this date ,becouse already set availability in this time'))
         }
         const teacherLessons = await appointment.find({teacherId:tcId})
+        let a = undefined
     if (teacherLessons.some(dObj=>
         {
+            a = dObj.date
             return  Math.abs(dObj.date.getTime() - availibleDate.getTime()) / 60000 < 30;
         }))
         {
+            console.log(a.toLocaleDateString())
+            console.log(a.toLocaleTimeString())
             return next(new AppError(500, 'cannot set availability in this date ,becouse lesson'))
         }
 
@@ -76,9 +81,10 @@ exports.updateTeacherAvailability = asyncHandler(async (req, res, next)=>{
     
         exports.CanceleTeacherAvailability = asyncHandler(async (req, res, next)=>
             {
-                const cancelDates = req.body.datess
+                const cancelDates = req.body.datesToRemove
                 const tcId = req.user._id
-                
+                // return next(new AppError(500,'availability not found'))
+
                 const datesToRemove = cancelDates.map(date => new Date(date));
                 const cancelledDate =  await availability.deleteMany({teacherId: tcId,
                     date: { $in: datesToRemove } });
@@ -165,6 +171,7 @@ exports.updateTeacherAvailability = asyncHandler(async (req, res, next)=>{
     exports.getTeacherReviews=asyncHandler(async (req, res, next)=>
         {
             const tcId = req.params.id; 
+            console.log(req.params)
             const teacherReviews = await reviews.find({teacherId:tcId})
             .populate('teacherId', 'name')
             .populate('studentId', 'name image');

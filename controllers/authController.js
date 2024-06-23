@@ -80,7 +80,7 @@ const createSendToken =async (user, statusCode, res) => {
             return next(new AppError(403,'user already register with the same role'))
           }
           const newUser = await user.create(req.body.userDetails)
-          await sendEmailRegisration(email,role,name)
+          await sendEmailRegisration('shlomomarachot',role,name)
           createSendToken(newUser, 201, res);
       
     })

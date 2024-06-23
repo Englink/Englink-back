@@ -97,23 +97,9 @@ const sendEmailRegisration = async (email,role,name)=>
 
             await sendEmail({
                 to: email,
-                subject: '!ברוך הבא',
-                html: `
-                    <html>
-                    <head>
-                        <style>
-                            body {
-                                direction: rtl;
-                                text-align: right;
-                            }
-                        </style>
-                    </head>
-                    <body>
-                        <p>!תודה על הרשמתך לאינגלינק ${name} ברוך הבא</p>
-                    </body>
-                    </html>
-                `
-                    
+                subject: 'Welcome to Our Website',
+                html: `<h1>Welcome ${role} ${name}</h1><p>Thank you for registering to Englink!</p>`
+                
               });   
             
         }

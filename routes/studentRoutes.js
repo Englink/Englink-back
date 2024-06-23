@@ -23,8 +23,7 @@ router.route('/update-image').post(authControllers.protect,upload.single('image'
 // router.route('/test').post(studentControllers.test)
 // router.route('/update-image-test').post(upload.array('files',10),(req,res)=>
 // {
-//     res.send('Files uploaded successfully');
- 
+//     res.send('Files uploaded successfully')ash 
 // })
 
 module.exports = router

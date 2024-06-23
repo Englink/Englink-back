@@ -7,7 +7,6 @@ const router = express.Router()
 const upload = require('../upload')
 
 router.route('/').get(authControllers.protect, studentControllers.getAllstudents)
-router.route('/updating-user-details').put(authControllers.protect,upload.single('image'),studentControllers.Update_the_user_information)
 router.route('/set-lesson/:id').put(authControllers.protect,authControllers.restrictTo(['student']), studentControllers.setLesson)
 router.route('/register').post(authControllers.register)
 router.route('/login').post(authControllers.login)
@@ -17,12 +16,14 @@ router.route('/validate').get(authControllers.protect,authControllers.validUser)
 router.route('/deletion').delete(authControllers.protect,studentControllers.DeleteStudent)
 router.route('/forgot-password').post(authControllers.forgotPassword)
 router.route('/reset-password/:token').post(authControllers.resetPassword)
+router.route('/updating-user-details').put(authControllers.protect,studentControllers.Update_the_user_information)
+router.route('/delete-image').delete(authControllers.protect,studentControllers.deleteImageProfile)
+router.route('/update-image').post(authControllers.protect,upload.single('image'),studentControllers.updateImageProfile)
 
 // router.route('/test').post(studentControllers.test)
 // router.route('/update-image-test').post(upload.array('files',10),(req,res)=>
 // {
-//     res.send('Files uploaded successfully');
- 
+//     res.send('Files uploaded successfully')ash 
 // })
 
 module.exports = router

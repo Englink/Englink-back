@@ -176,16 +176,12 @@ exports.CanceleLesson = asyncHandler(async (req, res, next)=>
     exports.Update_the_user_information = asyncHandler(async (req, res, next) => {
     const userId = req.user._id;
     const user = req.user
-    console.log(typeof req.body)
-    console.log('_____')
-    console.log(typeof req.body)
     const { image, email, password, name, phone, desc,price} = req.body;
     const updateFields = { image, email, password, name, phone, desc,price } 
     // console.log(req.body)
     // console.log(updateFields)
 
     for (const key in updateFields) {
-        console.log(typeof updateFields[key])
         if (!updateFields[key]|| updateFields[key].trim() === "") {
             delete updateFields[key];
         }
@@ -208,18 +204,6 @@ exports.CanceleLesson = asyncHandler(async (req, res, next)=>
         
         delete updateFields.password;
     }
-    if (user.image && req.file) {
-        console.log('e')
-        const oldImagePath = path.join('../uploads', user.image);
-        if (fs.existsSync(oldImagePath)) {
-            fs.unlinkSync(oldImagePath);
-        }
-    }
-    if (req.file) {
-        const imageUrl = `../uploads/${req.file.filename}`;
-        updateFields.image = imageUrl;
-        // await user.save();
-    }
     
     
     const updatedStudent = await User.findOneAndUpdate(
@@ -239,9 +223,56 @@ exports.CanceleLesson = asyncHandler(async (req, res, next)=>
         return(next(new AppError(500,'Some error occurred during the update')))
     }
 });
+exports.updateImageProfile = asyncHandler(async (req, res)=>
+    {
+        const user = req.user
     
+        
+    
+        
+        if (user.image) {
+            const oldImagePath = path.join(__dirname, '../uploads', user.image);
+            if (fs.existsSync(oldImagePath)) {
+                fs.unlinkSync(oldImagePath);
+            }
+        }
+        user.image = req.file.filename;
+        console.log(req.file.filename)
+        await user.save();
+
+        
+        
+        res.status(200).json({ imagePath:`uploads/${user.image}` });
     
 
+    })
+    
+
+exports.deleteImageProfile = asyncHandler(async (req, res) => {
+    const user = req.user
+    if (!user || !user.image) {
+        return res.status(404).json({ message: 'User or image not found' });
+    }
+    
+    // Path to the image file
+    const imagePath = path.join(__dirname, '../uploads', user.image);
+    
+    // Remove the image file from the filesystem
+    if (fs.existsSync(imagePath)) {
+        fs.unlinkSync(imagePath);
+    }
+
+    // Remove the image reference from the database
+    user.image = '';
+    await user.save();
+
+        console.log(user.image)
+res.status(200).json({
+    status: 'success'
+})
+
+    
+})
 exports.test = asyncHandler(async (req, res) => {
     console.log('e')
     if (req.headers['authorization'] !== process.env.ZOOM_WEBHOOK_SECRET_TOKEN ) {

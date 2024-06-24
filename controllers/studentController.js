@@ -141,7 +141,7 @@ exports.CanceleLesson = asyncHandler(async (req, res, next)=>
                     otherName = student.name
                     //  role = 'teacher';
                 }
-                await sendEmailCanceleLesson(userEmail,userName,otherEmail,otherName,cancelleLesson.date,role);
+                await sendEmailCanceleLesson(userEmail,userName,otherEmail,otherName,cancelleLesson.date,req.user.role);
             
                 res.status(200).json(response);
                                 

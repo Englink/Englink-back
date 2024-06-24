@@ -20,8 +20,10 @@ exports.updateTeacherAvailability = asyncHandler(async (req, res, next)=>{
     const tcId =  req.user._id
     const {month, year,day,hour,minute} = req.body.date;
     const availibleDate = new Date(year, month,day,hour,minute,0);
+    console.log(availibleDate)
     console.log(availibleDate.toLocaleDateString())
-    console.log(availibleDate.toLocaleTimeString())
+    // return next(new AppError(500, 'cannot set availability in this date ,becouse already set availability in this time'))
+
         // if availibleDate.getTime() < (Date.now() + 30 * 60 * 1000)
     const teacherDates = await availability.find({teacherId:tcId})
 

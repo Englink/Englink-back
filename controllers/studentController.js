@@ -176,8 +176,8 @@ exports.CanceleLesson = asyncHandler(async (req, res, next)=>
     exports.Update_the_user_information = asyncHandler(async (req, res, next) => {
     const userId = req.user._id;
     const user = req.user
-    const { image, email, password, name, phone, desc,price} = req.body;
-    const updateFields = { image, email, password, name, phone, desc,price } 
+    const {  email, password, name, phone, desc,price} = req.body;
+    const updateFields = { email, password, name, phone, desc,price } 
     // console.log(req.body)
     // console.log(updateFields)
 
@@ -237,7 +237,6 @@ exports.updateImageProfile = asyncHandler(async (req, res)=>
             }
         }
         user.image = req.file.filename;
-        console.log(req.file.filename)
         await user.save();
 
         

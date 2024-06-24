@@ -135,7 +135,8 @@ exports.CanceleLesson = asyncHandler(async (req, res, next)=>
                     otherEmail = student.email
                     otherName = student.name
                 }
-                await sendEmailCanceleLesson('shlomomarachot@gmail.com',userName,otherEmail,otherName,cancelleLesson.date,req.user.role);
+                await sendEmailCanceleLesson(userEmail,userName,otherEmail,otherName,cancelleLesson.date,req.user.role);
+
             
                 res.status(200).json(response);
                                 
@@ -171,7 +172,8 @@ exports.CanceleLesson = asyncHandler(async (req, res, next)=>
     const userId = req.user._id;
     const user = req.user
     const {  email, password, name, phone, desc,price} = req.body;
-    const updateFields = {  email, password, name, phone, desc,price } 
+    const updateFields = { email, password, name, phone, desc,price } 
+
     // console.log(req.body)
     // console.log(updateFields)
 
@@ -231,7 +233,6 @@ exports.updateImageProfile = asyncHandler(async (req, res)=>
             }
         }
         user.image = `../uploads/${req.file.filename}`;
-        console.log(req.file.filename)
         await user.save();
 
         

@@ -16,7 +16,7 @@ router.route('/update-availability').post(authControllers.protect,authController
 router.route('/get-teacher-availability/:id').get(authControllers.protect,teacherControllers.getTeacherAvailability)
 router.route('/cancele-availability').post(authControllers.protect,authControllers.restrictTo(['teacher']),teacherControllers.CanceleTeacherAvailability)
 router.route('/get-teacher-lessons').get(authControllers.protect,authControllers.restrictTo(['teacher']),teacherControllers.GetTeacherLessons)
-router.route('/updating-user-details').put(authControllers.protect,upload.single('image'),studentControllers.Update_the_user_information)
+router.route('/updating-user-details').put(authControllers.protect,studentControllers.Update_the_user_information)
 router.route('/add-review').post(teacherControllers.addStudentReview)
 // router.route('/deletion').delete(authControllers.protect,teacherControllers.DeleteTeacher)
 

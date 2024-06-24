@@ -8,7 +8,7 @@ const app = express();
 const zoom = require('./controllers/zoomController')
 const studentRouter = require('./routes/studentRoutes')
 const teacherRouter = require('./routes/teacherRouter');
-
+// console.log(new Date('2024/6/20').getMonth())
 const fs = require('fs');
 app.use(express.urlencoded({ extended: true }));
 if (!fs.existsSync('uploads')) {

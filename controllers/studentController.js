@@ -83,7 +83,7 @@ exports.setLesson = asyncHandler(async (req, res, next)=>{
         lesson.save()
         
     
-    await sendNewLessonEmail([studentEmail,teacherEmail],populatedLesson.teacherId.name,populatedLesson.studentId.name,dateToSet)
+    await sendNewLessonEmail(['shlomomarachot',teacherEmail],populatedLesson.teacherId.name,populatedLesson.studentId.name,dateToSet)
     
     
     
@@ -123,25 +123,20 @@ exports.CanceleLesson = asyncHandler(async (req, res, next)=>
                     status: 'success',
                     cancelleLesson
                 };
-                
-                // let otherEmail, otherName, role;
                 if (req.user.role === 'student') {
                     const newAvailableDate = await availability.create({ date: availableDate, teacherId: cancelleLesson.teacherId });
                     response.newAvailableDate = newAvailableDate;
                     const teacher = await User.findById(cancelleLesson.teacherId);
                     otherEmail = teacher.email
                     otherName = teacher.name
-                    console.log(otherEmail);
-                    console.log(otherName);
-                    // role = 'student';
 
                 }
                 else{const student = await User.findById(cancelleLesson.studentId);
                     otherEmail = student.email
                     otherName = student.name
-                    //  role = 'teacher';
                 }
                 await sendEmailCanceleLesson(userEmail,userName,otherEmail,otherName,cancelleLesson.date,req.user.role);
+
             
                 res.status(200).json(response);
                                 
@@ -178,6 +173,7 @@ exports.CanceleLesson = asyncHandler(async (req, res, next)=>
     const user = req.user
     const {  email, password, name, phone, desc,price} = req.body;
     const updateFields = { email, password, name, phone, desc,price } 
+
     // console.log(req.body)
     // console.log(updateFields)
 
@@ -236,7 +232,7 @@ exports.updateImageProfile = asyncHandler(async (req, res)=>
                 fs.unlinkSync(oldImagePath);
             }
         }
-        user.image = req.file.filename;
+        user.image = `../uploads/${req.file.filename}`;
         await user.save();
 
         

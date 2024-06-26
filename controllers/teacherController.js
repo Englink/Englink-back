@@ -20,8 +20,16 @@ exports.updateTeacherAvailability = asyncHandler(async (req, res, next)=>{
     const tcId =  req.user._id
     const {month, year,day,hour,minute} = req.body.date;
     const availibleDate = new Date(year, month,day,hour,minute,0);
-    console.log(availibleDate.toLocaleDateString())
-    console.log(availibleDate.toLocaleTimeString())
+    if(availibleDate.getTime()<=new Date().getTime())
+        {
+            return next(new AppError(405, 'cannot set date befur current date'))
+        }
+       
+    // console.log(availibleDate.toLocaleDateString())
+    // console.log(availibleDate.toLocaleTimeString())
+    // console.log(new Date().toLocaleDateString())
+    // console.log(new Date().toLocaleTimeString())
+
         // if availibleDate.getTime() < (Date.now() + 30 * 60 * 1000)
     const teacherDates = await availability.find({teacherId:tcId})
 

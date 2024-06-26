@@ -83,7 +83,7 @@ exports.setLesson = asyncHandler(async (req, res, next)=>{
         lesson.save()
         
     
-    await sendNewLessonEmail(['shlomomarachot',teacherEmail],populatedLesson.teacherId.name,populatedLesson.studentId.name,dateToSet)
+    await sendNewLessonEmail(['shlomoww@gmail.com',teacherEmail],populatedLesson.teacherId.name,populatedLesson.studentId.name,dateToSet)
     
     
     
@@ -178,7 +178,7 @@ exports.CanceleLesson = asyncHandler(async (req, res, next)=>
     // console.log(updateFields)
 
     for (const key in updateFields) {
-        if (!updateFields[key]|| updateFields[key].trim() === "") {
+        if (!updateFields[key]|| String(updateFields[key]).trim() === "") {
             delete updateFields[key];
         }
     }

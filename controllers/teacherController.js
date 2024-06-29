@@ -5,6 +5,7 @@ const availability = require('../models/availability')
 const user = require('../models/usersModel')
 const reviews = require('../models/reviews')
 const { sendEmailDeleteStudent} = require('../utils/sending_messages');
+const { schedule } = require('node-cron')
 
 exports.getAllteachers = asyncHandler(async (req, res, next)=>{
    
@@ -20,18 +21,16 @@ exports.updateTeacherAvailability = asyncHandler(async (req, res, next)=>{
     const tcId =  req.user._id
     const {month, year,day,hour,minute} = req.body.date;
     const availibleDate = new Date(year, month,day,hour,minute,0);
-    if(availibleDate.getTime()<=new Date().getTime())
+    const currentDate = new Date()
+    if(availibleDate.getTime() <= currentDate.getTime())
         {
-            return next(new AppError(405, 'cannot set date befur current date'))
+            return next(new AppError(405, 'cannot set avalability befour current date'))
         }
        
-    // console.log(availibleDate.toLocaleDateString())
-    // console.log(availibleDate.toLocaleTimeString())
-    // console.log(new Date().toLocaleDateString())
-    // console.log(new Date().toLocaleTimeString())
 
-        // if availibleDate.getTime() < (Date.now() + 30 * 60 * 1000)
-    const teacherDates = await availability.find({teacherId:tcId})
+    const teacherDates = await availability.find({teacherId:tcId,status:'available',date:{$gt:currentDate}})
+    if(!teacherDates)
+        return next(new AppError(401, 'teacher have no availible dates'))
 
     if (teacherDates.some(dObj=>
         {
@@ -40,16 +39,12 @@ exports.updateTeacherAvailability = asyncHandler(async (req, res, next)=>{
         {
             return next(new AppError(500, 'cannot set availability in this date ,becouse already set availability in this time'))
         }
-        const teacherLessons = await appointment.find({teacherId:tcId})
-        let a = undefined
+        const teacherLessons = await appointment.find({teacherId:tcId,status:'schedule',date:{$gt:currentDate}})
     if (teacherLessons.some(dObj=>
         {
-            a = dObj.date
             return  Math.abs(dObj.date.getTime() - availibleDate.getTime()) / 60000 < 30;
         }))
         {
-            console.log(a.toLocaleDateString())
-            console.log(a.toLocaleTimeString())
             return next(new AppError(500, 'cannot set availability in this date ,becouse lesson'))
         }
 
@@ -72,10 +67,16 @@ exports.updateTeacherAvailability = asyncHandler(async (req, res, next)=>{
     exports.getTeacherAvailability = asyncHandler(async (req, res, next)=>
         {
             const tcId = req.params.id; 
-            const teacherAvailability = await availability.find({ teacherId: tcId })
+            const currentDate = new Date(); // Get the current date/time
+            const teacherAvailability = await availability.find({ 
+              teacherId: tcId,
+              date: { $gt: currentDate } ,
+              status:'available'
+            })
             .populate({
-              path: 'teacherId'})
-              
+              path: 'teacherId'
+            });
+                          
               if(!teacherAvailability)
                   return next(new AppError(500,'availability not found'))
               res.status(200).json({
@@ -94,11 +95,13 @@ exports.updateTeacherAvailability = asyncHandler(async (req, res, next)=>{
                 // return next(new AppError(500,'availability not found'))
 
                 const datesToRemove = cancelDates.map(date => new Date(date));
-                const cancelledDate =  await availability.deleteMany({teacherId: tcId,
-                    date: { $in: datesToRemove } });
-                    res.status(200).json({
+                const cancelledDates = await availability.updateMany(
+                    { teacherId: tcId, date: { $in: datesToRemove } },
+                    { $set: { status: 'unavailable' } }
+                );
+                        res.status(200).json({
                         status: 'success',
-                        cancelledDate                    
+                        cancelledDate: cancelledDates                    
                     });
                 })
                     
@@ -126,7 +129,9 @@ exports.updateTeacherAvailability = asyncHandler(async (req, res, next)=>{
         const validStudentIds = new Set(validStudents.map(student => student._id.toString()));
 
         // Step 4: Retrieve and populate appointments conditionally
-        const lessons= await appointment.find({ teacherId: tcId, studentId: { $in: [...validStudentIds] } })
+        const currentDate = new Date()
+        const lessons= await appointment.find({ teacherId: tcId, studentId: { $in: [...validStudentIds] },
+            date: { $gt: currentDate },status:'scheduled' })
             .populate('teacherId')
             .populate('studentId');
                

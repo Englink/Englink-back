@@ -11,6 +11,13 @@ const availabilitySchema = new mongoose.Schema({
         type: Date,
         required: true
     }
+    ,
+    status: {
+        type: String,
+        enum: ['available', 'unavailable'],
+        default: 'available'
+    }
+
     
 });
 availabilitySchema.set('toJSON', {
@@ -23,12 +30,6 @@ availabilitySchema.set('toJSON', {
     }
 });
 
-// status: {
-//     type: String,
-//     enum: ['scheduled', 'canceled', 'completed'],
-//     default: 'scheduled'
-// },
-// Add any other fields you need for the appointment
 
 const availability = mongoose.model('availability', availabilitySchema);
 

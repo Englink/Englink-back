@@ -30,7 +30,12 @@ const appointmentSchema = new mongoose.Schema({
         required: true
     },
     notifications: notificationSchema,
-    
+    status: {
+        type: String,
+        enum: ['scheduled', 'canceled', 'completed'],
+        default: 'scheduled'
+    }
+
 
 });
 appointmentSchema.set('toJSON', {

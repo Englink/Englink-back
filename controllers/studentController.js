@@ -38,19 +38,22 @@ exports.setLesson = asyncHandler(async (req, res, next)=>{
     const studentEmail = req.user.email
     const studentId = req.user._id
     const dateId = req.params.id
-    const dateToSet = await availability.findByIdAndDelete(dateId)
-    if (dateToSet)
+    const dateToSet = await availability.findById(dateId)
+    const currentDate = new Date()
+
+    if (dateToSet && dateToSet.status === 'available' && dateToSet.date > currentDate.getTime())
         {
-         const tcId = dateToSet.teacherId
-         console.log(tcId)
-         const lesson = await appointment.create({
-            teacherId: tcId,
-            studentId: studentId,
-            date: dateToSet.date,
-            notifications: { start: null, end: null }
-        });
-        const teacher = await User.findById(tcId)
-        const teacherEmail = teacher.email
+            const tcId = dateToSet.teacherId
+            const lesson = await appointment.create({
+                teacherId: tcId,
+                studentId: studentId,
+                date: dateToSet.date,
+                notifications: { start: null, end: null }
+            });
+            const teacher = await User.findById(tcId)
+            const teacherEmail = teacher.email
+            dateToSet.status = 'unavailable'
+            await dateToSet.save()
         
         
         // Immediately populate the fields after creation
@@ -62,16 +65,14 @@ exports.setLesson = asyncHandler(async (req, res, next)=>{
         const notificationZoomTime = new Date(dateToSet.date.getTime());
         notificationZoomTime.setMinutes(notificationZoomTime.getMinutes()-2);
 
-        console.log(notificationZoomTime.toLocaleDateString())
-        console.log(notificationZoomTime.toLocaleTimeString())
         const notificationStartJobId = uuidv4();
         const notificationEndJobId = uuidv4();  
-        schedule.scheduleJob(notificationStartJobId,notificationZoomTime,async function() {
-        const meeting = await zoom.handelZoom(process.env.HOSTEMAIL);
-        const joinurl = meeting.join_url;
-        await sendZoomLessonInventation([studentEmail,teacherEmail],
-        populatedLesson.studentId.name,populatedLesson.teacherId.name,joinurl)
-    });
+    //     schedule.scheduleJob(notificationStartJobId,notificationZoomTime,async function() {
+    //     const meeting = await zoom.handelZoom(process.env.HOSTEMAIL);
+    //     const joinurl = meeting.join_url;
+    //     await sendZoomLessonInventation([studentEmail,teacherEmail],
+    //     populatedLesson.studentId.name,populatedLesson.teacherId.name,joinurl)
+    // });
     const endMeetingTime = new Date(dateToSet.date.getTime());
     endMeetingTime.setMinutes(notificationZoomTime.getMinutes()+30);
         schedule.scheduleJob(notificationEndJobId,endMeetingTime,async function() {
@@ -115,9 +116,10 @@ exports.CanceleLesson = asyncHandler(async (req, res, next)=>
         const cancelleLesson = await appointment.findById(lessonId);
         
         
-        if(cancelleLesson)
+        if(cancelleLesson && cancelleLesson.status === 'scheduled')
             {
-                await cancelleLesson.deleteOne(); // This will trigger the pre-remove middleware
+                cancelleLesson.status = 'canceled'
+                await cancelleLesson.save()
                 const availableDate = cancelleLesson.date
                 let response = {
                     status: 'success',
@@ -131,7 +133,9 @@ exports.CanceleLesson = asyncHandler(async (req, res, next)=>
                     otherName = teacher.name
 
                 }
-                else{const student = await User.findById(cancelleLesson.studentId);
+                else
+                {
+                    const student = await User.findById(cancelleLesson.studentId);
                     otherEmail = student.email
                     otherName = student.name
                 }
@@ -150,8 +154,10 @@ exports.CanceleLesson = asyncHandler(async (req, res, next)=>
     
     exports.GetStudentsLessons = asyncHandler(async (req, res, next)=>
     {
+
         const stId = req.user._id
-        const lessons = await appointment.find({studentId:stId})
+        const currentDate = new Date()
+        const lessons = await appointment.find({studentId:stId,date:{$gt:currentDate},status:'scheduled'})
         .populate({
             path: 'teacherId'
         })

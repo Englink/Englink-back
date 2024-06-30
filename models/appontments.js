@@ -50,27 +50,15 @@ appointmentSchema.set('toJSON', {
     
 });
 
-appointmentSchema.pre('deleteOne',{ document: true, query: false }, async function(next) {
-    try {
-        const notifications = this.notifications;
-        
-        if (notifications.start && schedule.scheduledJobs[notifications.start]) {
-            schedule.scheduledJobs[notifications.start].cancel();
-        }
-
-        if (notifications.end && schedule.scheduledJobs[notifications.end]) {
-            schedule.scheduledJobs[notifications.end].cancel();
-        }
-
-        // Add more cancellation logic for other notification types if needed
-
-        next();
-    } catch (err) {
-        next(err);
+notificationSchema.methods.cancelScheduledJob = async function(jobId) {
+    const job = schedule.scheduledJobs[jobId];
+    if (job) {
+        job.cancel();
+        console.log(`Canceled scheduled job: ${jobId}`);
+    } else {
+        console.log(`Job ID ${jobId} not found in scheduled jobs.`);
     }
-
-}
-);
+};
 
 
 const Appointment = mongoose.model('Appointment', appointmentSchema);

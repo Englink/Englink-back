@@ -4,12 +4,13 @@ const appointment = require('../models/appontments')
 const availability = require('../models/availability')
 const user = require('../models/usersModel')
 const reviews = require('../models/reviews')
-const { sendEmailDeleteStudent} = require('../utils/sending_messages');
+const { sendEmailLessonsCanceled} = require('../utils/sending_messages');
 const { schedule } = require('node-cron')
+const { set } = require('mongoose')
 
 exports.getAllteachers = asyncHandler(async (req, res, next)=>{
    
-    const teachers = await user.find({role:'teacher'})
+    const teachers = await user.find({role:'teacher',deletedAt:null})
     res.status(200).json({
         status:'success',
         teachers
@@ -200,34 +201,41 @@ exports.DeleteTeacher = asyncHandler(async (req, res, next) =>{
     const teacherName = req.user.name
     const role = req.user.role
 
-    const appointmentsToDelete = await appointment.find({ teacherId: userId });
-    console.log('Appointments to delete:', appointmentsToDelete);
+    const appointmentsToDelete = await appointment.updateMany(
+        { teacherId: userId, status: 'scheduled' },
+        { $set: { status: 'canceled' } }
+    );
+    if(appointmentsToDelete && appointmentsToDelete.length > 0)
+        {
+            for (const appointment of appointmentsToDelete) {
+                // Cancel notifications for each appointment
+                if (appointment.notifications && appointment.notifications.start) {
+                    await appointment.notifications.cancelScheduledJob(appointment.notifications.start);
+                }
+                if (appointment.notifications && appointment.notifications.end) {
+                    await appointment.notifications.cancelScheduledJob(appointment.notifications.end);
+                }
+            }
+                
+            const studentIds = [...new Set(appointmentsToDelete.map(appointment => appointment.studentId))];
+            const students = await user.find(
+                { _id: { $in: studentIds } },
+                { email: 1, name: 1 }
+            );
 
-      // איטרציה על כל תור שנמחק
-      for (const appointmentToDelete of appointmentsToDelete) {
-        // חילוץ כתובת הדוא"ל של התלמיד
-
-        const student = await user.findById(appointmentToDelete.studentId);
-        if (!student) {
-            console.error('Teacher not found:', appointmentToDelete.studentId);
-            continue;
-        }
-        const studentEmail = student.email;
-
-        // // שליחת מייל לתלמיד
-        // await sendEmailDeleteStudent(studentEmail, teacherName, appointmentToDelete.date,role);
-        // console.log('Email sent to:', studentEmail);
-
-        
+            // Prepare email content for each student
+            for (const student of students) {
+                const canceledLessons = appointmentsToDelete.filter(appointment => appointment.studentId.toString() === student._id.toString());
+                const canceledLessonsInfo = canceledLessons.map(appointment => `Lesson on ${appointment.date.toDateString()}
+                with teacher ${teacherName} are cancelled`);
+                
+                // Send email to student
+                await sendEmailLessonsCanceled(student.email, student.name, canceledLessonsInfo.join(', '), 'student');
+            }
+            
     
-        // מחיקת התור הנוכחי
-        await appointment.deleteOne({ _id: appointmentToDelete._id });
-        console.log('Appointment deleted:', appointmentToDelete._id);
-    }
-
-    // מחיקת המורה
-    await user.findByIdAndDelete(userId);
-    console.log('User deleted:', userId);
+}
+    await user.findByIdAndUpdate(userId,{$set:{status:new Date()}});
 
     res.status(200).json({
         status: 'success'
@@ -235,6 +243,19 @@ exports.DeleteTeacher = asyncHandler(async (req, res, next) =>{
    
 
 });
+
+
+        
+
+
+
+
+      
+    
+
+        
+    
+
 
 
 

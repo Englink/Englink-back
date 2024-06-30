@@ -232,7 +232,7 @@ exports.DeleteTeacher = asyncHandler(async (req, res, next) =>{
                 // Send email to student
                 await sendEmailLessonsCanceled(student.email, student.name, canceledLessonsInfo.join(', '), 'student');
             }
-            const availabilitiesToDelete = await availability.updateMany(
+            await availability.updateMany(
                 { teacherId: userId, status: 'available' },
                 { $set: { status: 'unavailable' } }
             );

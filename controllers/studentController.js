@@ -331,10 +331,6 @@ exports.DeleteStudent = asyncHandler(async (req, res, next) => {
             
     
 }
-    const availabilitiesToDelete = await availability.updateMany(
-        { teacherId: userId, status: 'available' },
-        { $set: { status: 'unavailable' } }
-    );
     await user.findByIdAndUpdate(userId,{$set:{status:new Date()}});
 
     res.status(200).json({

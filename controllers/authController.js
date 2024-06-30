@@ -49,7 +49,7 @@ const createSendToken =async (user, statusCode, res) => {
     }
   
     console.log(role)
-    const user1 = await user.findOne({ email,role });
+    const user1 = await user.findOne({ email,role,status:null });
     if (!user1 || !await user1.checkPassword(password, user1.password)) {
       return next(new AppError(403, 'Email or password is incorrect'));
     }
@@ -69,7 +69,7 @@ const createSendToken =async (user, statusCode, res) => {
     if (!email ||!password)
       return next(new AppError(403,'Request details are missing'))
     
-        const user1 = await user.find({email})
+        const user1 = await user.find({email,status:null})
         if (user1.length > 1)
           {
             
@@ -126,7 +126,7 @@ const createSendToken =async (user, statusCode, res) => {
           {
             return next(new AppError(403, 'email or role are missing'))
           }
-          const user1 =await user.findOne({email:email,role:role})
+          const user1 =await user.findOne({email:email,role:role,status:null})
 
         if(!user1)
           {
@@ -151,7 +151,7 @@ const createSendToken =async (user, statusCode, res) => {
        
           const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET)
           const {id} = decoded
-          const user1 =await user.findById(id)
+          const user1 = await user.findOne({ _id: id, status: null });
           if(!user1)
             {
               return next(new AppError(403, 'incorrect email'))

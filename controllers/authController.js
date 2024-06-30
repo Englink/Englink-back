@@ -49,7 +49,8 @@ const createSendToken =async (user, statusCode, res) => {
     }
   
     console.log(role)
-    const user1 = await user.findOne({ email,role,status:null });
+    const user1 = await user.findOne({ email,role,deletedAt:null });
+    console.log(user1)
     if (!user1 || !await user1.checkPassword(password, user1.password)) {
       return next(new AppError(403, 'Email or password is incorrect'));
     }
@@ -69,7 +70,7 @@ const createSendToken =async (user, statusCode, res) => {
     if (!email ||!password)
       return next(new AppError(403,'Request details are missing'))
     
-        const user1 = await user.find({email,status:null})
+        const user1 = await user.find({email,deletedAt:null})
         if (user1.length > 1)
           {
             
@@ -126,7 +127,7 @@ const createSendToken =async (user, statusCode, res) => {
           {
             return next(new AppError(403, 'email or role are missing'))
           }
-          const user1 =await user.findOne({email:email,role:role,status:null})
+          const user1 =await user.findOne({email:email,role:role,deletedAt:null})
 
         if(!user1)
           {

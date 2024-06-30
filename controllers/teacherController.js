@@ -240,7 +240,7 @@ exports.DeleteTeacher = asyncHandler(async (req, res, next) =>{
             
     
 }
-    await user.findByIdAndUpdate(userId,{$set:{status:new Date()}});
+    await user.findByIdAndUpdate(userId,{$set:{deletedAt:new Date()}});
 
     res.status(200).json({
         status: 'success'

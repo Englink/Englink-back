@@ -56,7 +56,14 @@ const userSchema = new mongoose.Schema({
         default:'student'
 
 
-        }});
+        },
+    deletedAt: {
+        type: Date,
+        default: null
+        }
+        
+    
+    });
 userSchema.index({ email: 1, role: 1 }, { unique: true });
 
 
@@ -74,6 +81,7 @@ userSchema.methods.checkPassword = async function(password,hashedPassword){
     const checkPasword = await bcrypt.compare(password, hashedPassword)
     return checkPasword
 }
+
 const user = mongoose.model('users', userSchema)
 
 module.exports = user

@@ -4,7 +4,7 @@ const appointment = require('../models/appontments')
 const availability = require('../models/availability')
 const User = require('../models/usersModel')
 const {  sendFeedbackRequestEmail,sendZoomLessonInventation,
-sendNewLessonEmail,sendEmailDeleteStudent,sendEmailCanceleLesson} = require('../utils/sending_messages');
+sendNewLessonEmail,sendEmailLessonsCanceled,sendEmailCanceleLesson} = require('../utils/sending_messages');
 const zoom = require('./zoomController')
 const dotenv = require('dotenv')
 const schedule = require('node-schedule');
@@ -14,6 +14,7 @@ const { v4: uuidv4 } = require('uuid');
 const { json } = require('body-parser')
 const e = require('cors')
 const { log } = require('console')
+const user = require('../models/usersModel')
 
 dotenv.config();
 
@@ -30,7 +31,6 @@ exports.getAllstudents = asyncHandler(async (req, res, next)=>{
 
 
 
-// && dateToSet.date.getTime() > (Date.now() + 30 * 60 * 1000)
 
 
 exports.setLesson = asyncHandler(async (req, res, next)=>{
@@ -63,28 +63,28 @@ exports.setLesson = asyncHandler(async (req, res, next)=>{
                 
             
         const notificationZoomTime = new Date(dateToSet.date.getTime());
-        notificationZoomTime.setMinutes(notificationZoomTime.getMinutes()-2);
+        notificationZoomTime.setMinutes(notificationZoomTime.getMinutes()-35);
 
         const notificationStartJobId = uuidv4();
-        const notificationEndJobId = uuidv4();  
-    //     schedule.scheduleJob(notificationStartJobId,notificationZoomTime,async function() {
-    //     const meeting = await zoom.handelZoom(process.env.HOSTEMAIL);
-    //     const joinurl = meeting.join_url;
-    //     await sendZoomLessonInventation([studentEmail,teacherEmail],
-    //     populatedLesson.studentId.name,populatedLesson.teacherId.name,joinurl)
-    // });
+        const notificationEndJobId = uuidv4();
+        
+        schedule.scheduleJob(notificationStartJobId,notificationZoomTime,async function() {
+        const joinUrl = `https://meet.jit.si/356546546/${notificationStartJobId}`;
+        await sendZoomLessonInventation([studentEmail,teacherEmail],
+        populatedLesson.studentId.name,populatedLesson.teacherId.name,joinUrl)
+    });
     const endMeetingTime = new Date(dateToSet.date.getTime());
     endMeetingTime.setMinutes(notificationZoomTime.getMinutes()+30);
         schedule.scheduleJob(notificationEndJobId,endMeetingTime,async function() {
-        })
             sendFeedbackRequestEmail(studentEmail, populatedLesson.teacherId.name, lesson._id);
+        })
         
         lesson.notifications.start = notificationStartJobId
         lesson.notifications.end = notificationEndJobId
-        lesson.save()
+        await lesson.save()
         
     
-    await sendNewLessonEmail(['shlomoww@gmail.com',teacherEmail],populatedLesson.teacherId.name,populatedLesson.studentId.name,dateToSet)
+    await sendNewLessonEmail(['shlomomarachot@gmail.com',teacherEmail],populatedLesson.teacherId.name,populatedLesson.studentId.name,dateToSet)
     
     
     
@@ -297,49 +297,64 @@ exports.DeleteStudent = asyncHandler(async (req, res, next) => {
     const studentName = req.user.name; 
     const role = req.user.role
 
-    // איתור כל התורים הקשורים לתלמיד
-    const appointmentsToDelete = await appointment.find({ studentId: userId });
-    console.log('Appointments to delete:', appointmentsToDelete);
+    const appointmentsToDelete = await appointment.updateMany(
+        { studentId: userId, status: 'scheduled' },
+        { $set: { status: 'canceled' } }
+    );
+    if(appointmentsToDelete && appointmentsToDelete.length > 0)
+        {
+            for (const appointment of appointmentsToDelete) {
+                // Cancel notifications for each appointment
+                if (appointment.notifications && appointment.notifications.start) {
+                    await appointment.notifications.cancelScheduledJob(appointment.notifications.start);
+                }
+                if (appointment.notifications && appointment.notifications.end) {
+                    await appointment.notifications.cancelScheduledJob(appointment.notifications.end);
+                }
+            }
+                
+            const teacherIds = [...new Set(appointmentsToDelete.map(appointment => appointment.teacherId))];
+            const teachers = await user.find(
+                { _id: { $in: teacherIds } },
+                { email: 1, name: 1 }
+            );
 
-    // איטרציה על כל תור שנמחק
-    for (const appointmentToDelete of appointmentsToDelete) {
-        // חילוץ כתובת הדוא"ל של המורה
-
-        const teacher = await User.findById(appointmentToDelete.teacherId);
-        if (!teacher) {
-            console.error('Teacher not found:', appointmentToDelete.teacherId);
-            continue;
-        }
-        const teacherEmail = teacher.email;
-
-        // // שליחת מייל למורה
-        await sendEmailDeleteStudent(teacherEmail, studentName, appointmentToDelete.date,role);
-        // console.log('Email sent to:', teacherEmail);
-
-        // הוספת התאריך הפנוי למסד הנתונים
-        const newAvailability =  availability.create({
-          teacherId: appointmentToDelete.teacherId,
-          date: appointmentToDelete.date
-        });
-
-        // await newAvailability.save();
-        console.log('New availability saved for:', appointmentToDelete.date);
-
-        // מחיקת התור הנוכחי
-        await appointment.deleteOne({ _id: appointmentToDelete._id });
-        console.log('Appointment deleted:', appointmentToDelete._id);
-    }
-
-    // מחיקת התלמיד
-    await User.findByIdAndDelete(userId);
-    console.log('User deleted:', userId);
+            // Prepare email content for each teacher
+            for (const teacher of teachers) {
+                const canceledLessons = appointmentsToDelete.filter(appointment => appointment.teacherId.toString() === teacher._id.toString());
+                const canceledLessonsInfo = canceledLessons.map(appointment => `Lesson on ${appointment.date.toDateString()}
+                with student ${studentName} are cancelled`);
+                
+                // Send email to teacher
+                await sendEmailLessonsCanceled(teacher.email, teacher.name, canceledLessonsInfo.join(', '), 'teacher');
+            }
+            
+    
+}
+    const availabilitiesToDelete = await availability.updateMany(
+        { teacherId: userId, status: 'available' },
+        { $set: { status: 'unavailable' } }
+    );
+    await user.findByIdAndUpdate(userId,{$set:{status:new Date()}});
 
     res.status(200).json({
         status: 'success'
     });
-   
+      
 
 });
+
+exports.someTest = asyncHandler(async( req,res,next)=>
+    {
+        
+    }
+
+
+)
+
+
+
+
 
 
 

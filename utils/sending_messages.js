@@ -124,12 +124,12 @@ const sendEmailRegisration = async (email,role,name)=>
         
     }
     
-    const sendEmailDeleteStudent = async (Email,name,date,role)=>{
+    const sendEmailLessonsCanceled = async (Email,name,date,role)=>{
         try{
         await sendEmail({
             to: Email,
             subject: 'Your class has been cancelled',
-             html: `<h1></h1><p>The ${role} ${name} canceled the lesson on the date${date}</p>`
+             html: `<p>The ${role} ${name} canceled the given lessons on the date${date}</p>`
              
              
              });   
@@ -138,7 +138,7 @@ const sendEmailRegisration = async (email,role,name)=>
              catch(err)
              {
                  console.log(err)
-                 }
+            }
                  
     }
     
@@ -203,7 +203,7 @@ const sendEmailRegisration = async (email,role,name)=>
         sendNewLessonEmail,
         sendEmailRegisration,
         sendEmailCreatePasswoed,
-        sendEmailDeleteStudent,
+        sendEmailLessonsCanceled,
         sendEmailCanceleLesson
       };
 

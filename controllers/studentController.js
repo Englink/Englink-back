@@ -63,7 +63,7 @@ exports.setLesson = asyncHandler(async (req, res, next)=>{
                 
             
         const notificationZoomTime = new Date(dateToSet.date.getTime());
-        notificationZoomTime.setMinutes(notificationZoomTime.getMinutes()-35);
+        notificationZoomTime.setMinutes(notificationZoomTime.getMinutes()-10);
 
         const notificationStartJobId = uuidv4();
         const notificationEndJobId = uuidv4();
@@ -303,6 +303,7 @@ exports.DeleteStudent = asyncHandler(async (req, res, next) => {
     );
     if(appointmentsToDelete && appointmentsToDelete.length > 0)
         {
+            
             for (const appointment of appointmentsToDelete) {
                 // Cancel notifications for each appointment
                 if (appointment.notifications && appointment.notifications.start) {
@@ -312,14 +313,20 @@ exports.DeleteStudent = asyncHandler(async (req, res, next) => {
                     await appointment.notifications.cancelScheduledJob(appointment.notifications.end);
                 }
             }
-                
+            
             const teacherIds = [...new Set(appointmentsToDelete.map(appointment => appointment.teacherId))];
             const teachers = await user.find(
                 { _id: { $in: teacherIds } },
                 { email: 1, name: 1 }
             );
-
-            // Prepare email content for each teacher
+            
+            for (const appointment of appointmentsToDelete) {
+                await availability.updateOne(
+                    { teacherId: appointment.teacherId, date: appointment.date, status: 'unavailable' ,date:{$gt:new Date()}},
+                    { $set: { status: 'available' } }
+                );
+                }
+                // Prepare email content for each teacher
             for (const teacher of teachers) {
                 const canceledLessons = appointmentsToDelete.filter(appointment => appointment.teacherId.toString() === teacher._id.toString());
                 const canceledLessonsInfo = canceledLessons.map(appointment => `Lesson on ${appointment.date.toDateString()}

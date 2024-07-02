@@ -84,7 +84,7 @@ exports.setLesson = asyncHandler(async (req, res, next)=>{
         await lesson.save()
         
     
-    await sendNewLessonEmail(['shlomomarachot@gmail.com',teacherEmail],populatedLesson.teacherId.name,populatedLesson.studentId.name,dateToSet)
+    await sendNewLessonEmail([studentEmail,teacherEmail],populatedLesson.teacherId.name,populatedLesson.studentId.name,dateToSet)
     
     
     

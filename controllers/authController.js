@@ -136,7 +136,7 @@ const createSendToken =async (user, statusCode, res) => {
           // console.log(user1)
           
           const token = signToken(user1._id,'3h')
-          await sendEmailCreatePasswoed(process.env.FORGET_PASS_EMAIL,token)
+          await sendEmailCreatePasswoed(email,token)
            res.status(201).json({
             status: 'success',
           });

@@ -133,7 +133,6 @@ const createSendToken =async (user, statusCode, res) => {
           {
             return next(new AppError(403, 'incorrect email'))
           }
-          // console.log(user1)
           
           const token = signToken(user1._id,'3h')
           await sendEmailCreatePasswoed(email,token)

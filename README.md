@@ -48,7 +48,7 @@ https://github.com/Englink/Englink-back.git
 
 # Frontend
 -clone the repo and navigate to the main directory 
-https://github.com/Englink/Englink-back.git
+https://github.com/Englink/Englink-front.git
 - npm i to install dependencies
 - npm run dev
 
